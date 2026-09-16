@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #0a0b0e;
+    color: #e0e2e5;
+  }
+  h1, h2, h3, h4, .font-tech {
+    font-family: 'Chakra Petch', sans-serif;
+  }
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* Immersive UI Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0b0e;
+}
+::-webkit-scrollbar-thumb {
+  background: #1f2937;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #00f2ff;
+}
+
+@keyframes pulse-cyan-glow {
+  0%, 100% {
+    opacity: 0.9;
+    filter: drop-shadow(0 0 10px rgba(0, 242, 255, 0.6));
+  }
+  50% {
+    opacity: 0.4;
+    filter: drop-shadow(0 0 3px rgba(0, 242, 255, 0.2));
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-cyan-glow 2.5s infinite ease-in-out;
+}
+
+/* Immersive Radar Grid pattern */
+.bg-tactical-grid {
+  background-image: radial-gradient(#1f2937 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+

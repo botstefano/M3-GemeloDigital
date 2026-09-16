@@ -1,0 +1,6 @@
+{
+  "name": "M-3 Mining Digital Twin: Drill-Blast-Load-Haul",
+  "description": "Plataforma de Simulación Digital Twin 3D y Optimización Multi-Objetivo (DRL & ABM) del ciclo Drill-Blast-Load-Haul para operaciones mineras a cielo abierto con cálculo de fragmentación Kuz-Ram, despacho dinámico y análisis Mine-to-Mill.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
