@@ -50,6 +50,12 @@ import {
   LATEX_MANUSCRIPT_SECTIONS_3_AND_4,
   generateGoogleColabNotebookJson,
 } from '../../utils/scientificFigureGenerator';
+import {
+  generateAcademicDossierPDF,
+  generateAcademicDossierCSV,
+} from '../../utils/academicDossierGenerator';
+import { AcademicDossierModal } from './AcademicDossierModal';
+import { FileText } from 'lucide-react';
 
 export const ScientificResearchStudio: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
@@ -88,6 +94,9 @@ export const ScientificResearchStudio: React.FC = () => {
 
   // Interactive Figure Viewer Selection
   const [selectedFigure, setSelectedFigure] = useState<'fig1' | 'fig2' | 'fig3' | 'fig4'>('fig1');
+
+  // Modal State for Academic Dossier (PDF / CSV)
+  const [isDossierModalOpen, setIsDossierModalOpen] = useState<boolean>(false);
 
   const handleRunMonteCarlo = () => {
     setIsRunningSim(true);
@@ -166,29 +175,54 @@ export const ScientificResearchStudio: React.FC = () => {
     downloadFile(`dataset_mine_to_mill_n${sampleSize}.csv`, csvContent, 'text/csv');
   };
 
+  const handleDownloadDossierPdf = () => {
+    generateAcademicDossierPDF({
+      caseStudy: activeCaseStudy,
+      benchmarks,
+      sampleSize,
+      randomSeed,
+      powderFactor,
+    });
+  };
+
+  const handleDownloadDossierCsv = () => {
+    const csvContent = generateAcademicDossierCSV({
+      caseStudy: activeCaseStudy,
+      benchmarks,
+      sampleSize,
+      randomSeed,
+      powderFactor,
+    });
+    downloadFile(`dossier_investigacion_datos_e_indicaciones_n${sampleSize}.csv`, csvContent, 'text/csv');
+  };
+
   const handleDownloadCompleteResearchBundle = () => {
+    // 0. Download Official PDF Dossier
+    handleDownloadDossierPdf();
     // 1. Download CSV
-    handleDownloadCsv();
+    setTimeout(() => {
+      handleDownloadDossierCsv();
+    }, 400);
     // 2. Download LaTeX Draft
     setTimeout(() => {
       downloadFile('manuscript_draft_sections_3_and_4.tex', LATEX_MANUSCRIPT_SECTIONS_3_AND_4);
-    }, 400);
+    }, 800);
     // 3. Download Table 2 LaTeX
     setTimeout(() => {
       downloadFile('table2_benchmarks.tex', generateLatexBenchmarkTable(benchmarks));
-    }, 800);
+    }, 1200);
     // 4. Download Ablation Table LaTeX
     setTimeout(() => {
       downloadFile('table_ablation_hyperparameters.tex', generateLatexAblationTable(DRL_HYPERPARAMETER_ABLATION_STUDY));
-    }, 1200);
+    }, 1600);
     // 5. Download Python Figure Generator Script
     setTimeout(() => {
       downloadFile('generate_figures_paper.py', PYTHON_GENERATE_FIGURES_CODE);
-    }, 1600);
+    }, 2000);
     // 6. Download Colab Notebook
     setTimeout(() => {
       downloadFile('M3_Digital_Twin_Colab.ipynb', generateGoogleColabNotebookJson(), 'application/json');
-    }, 2000);
+    }, 2400);
   };
 
   return (
@@ -215,22 +249,52 @@ export const ScientificResearchStudio: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5 self-start md:self-auto">
+            {/* Primary Highlighted Button: Download Dossier Data & Instructions (PDF / CSV) */}
+            <button
+              onClick={() => setIsDossierModalOpen(true)}
+              className="px-4 py-2 bg-gradient-to-r from-[#00f2ff] via-[#38bdf8] to-[#818cf8] hover:from-[#00d0db] hover:to-[#6366f1] text-[#050811] text-xs font-bold font-mono rounded-lg transition-all flex items-center gap-2 cursor-pointer shadow-lg shadow-[#00f2ff]/25 border border-[#00f2ff]/40"
+              title="Abre el asistente de descarga de datos geomecánicos, tablas y guía de redacción en PDF y CSV"
+            >
+              <FileText className="w-4 h-4 text-[#050811]" />
+              <span>Dossier e Indicaciones (PDF / CSV)</span>
+            </button>
+
+            {/* Direct Quick PDF Button */}
+            <button
+              onClick={handleDownloadDossierPdf}
+              className="px-3.5 py-2 bg-[#172033] hover:bg-[#1f2b45] text-[#00f2ff] border border-[#00f2ff]/30 text-xs font-mono rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+              title="Descargar inmediatamente el Dossier Científico en PDF (4 páginas oficiales)"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>PDF Oficial</span>
+            </button>
+
+            {/* Direct Quick CSV Button */}
+            <button
+              onClick={handleDownloadDossierCsv}
+              className="px-3.5 py-2 bg-[#172033] hover:bg-[#1f2b45] text-emerald-400 border border-emerald-500/30 text-xs font-mono rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+              title="Descargar inmediatamente la base de datos completa e indicaciones en CSV"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5" />
+              <span>CSV Completo</span>
+            </button>
+
             <button
               onClick={handleDownloadCompleteResearchBundle}
-              className="px-4 py-2 bg-gradient-to-r from-[#00f2ff] to-[#00a3ff] hover:from-[#00d0db] hover:to-[#008ecc] text-[#050811] text-xs font-bold font-mono rounded-lg transition-all flex items-center gap-2 cursor-pointer shadow-lg shadow-[#00f2ff]/10"
-              title="Descarga automática de todos los archivos del paper (LaTeX, CSV, Python, Colab)"
+              className="px-3.5 py-2 bg-[#131b2c] hover:bg-[#1b263e] border border-[#223254] text-[#cbd5e1] hover:text-white text-xs font-mono rounded-lg transition-all flex items-center gap-1.5 cursor-pointer"
+              title="Descarga automática de todos los archivos del paper (PDF, LaTeX, CSV, Python, Colab)"
             >
-              <Package className="w-4 h-4" />
-              <span>Descargar Paquete Completo (Paper Bundle)</span>
+              <Package className="w-3.5 h-3.5" />
+              <span>Bundle Todo</span>
             </button>
 
             <button
               onClick={() => handleCopyText(generateLatexBenchmarkTable(benchmarks), 'latex-btn')}
-              className="px-3.5 py-2 bg-[#172033] hover:bg-[#1f2b45] text-[#00f2ff] border border-[#00f2ff]/30 text-xs font-mono rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+              className="px-3 py-2 bg-[#172033] hover:bg-[#1f2b45] text-[#9ca3af] hover:text-[#00f2ff] border border-[#1b2336] text-xs font-mono rounded-lg transition-all flex items-center gap-1 cursor-pointer"
               title="Copiar código fuente LaTeX de la Tabla 2 para Overleaf"
             >
               {copiedCode === 'latex-btn' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copiedCode === 'latex-btn' ? '¡LaTeX Copiado!' : 'Copiar Tabla 2 LaTeX'}</span>
+              <span>{copiedCode === 'latex-btn' ? '¡Copiado!' : 'LaTeX T2'}</span>
             </button>
           </div>
         </div>
@@ -380,6 +444,25 @@ export const ScientificResearchStudio: React.FC = () => {
                     {benchmarks.map((row) => {
                       const isDrl = row.policy === 'drl_ppo_agent';
                       const isBaseline = row.policy === 'fixed';
+                      const tphMean = row.tph?.mean?.toFixed(0) ?? '0';
+                      const tphStd = row.tph?.stdDev?.toFixed(1) ?? '0.0';
+                      const tphCiLow = row.tph?.ci95Low?.toFixed(0) ?? '0';
+                      const tphCiHigh = row.tph?.ci95High?.toFixed(0) ?? '0';
+
+                      const waitMean = row.shovelWaitMin?.mean?.toFixed(2) ?? '0.00';
+                      const waitStd = row.shovelWaitMin?.stdDev?.toFixed(2) ?? '0.00';
+
+                      const sagMean = row.sagEnergyKwhT?.mean?.toFixed(2) ?? '0.00';
+                      const sagStd = row.sagEnergyKwhT?.stdDev?.toFixed(2) ?? '0.00';
+
+                      const costMean = row.unitCostUsd?.mean?.toFixed(2) ?? '0.00';
+                      const costStd = row.unitCostUsd?.stdDev?.toFixed(2) ?? '0.00';
+
+                      const rewardMean = row.compositeReward?.mean?.toFixed(1) ?? '0.0';
+                      const tStat = row.tTestVsBaseline?.tStatistic ?? 0;
+                      const pVal = row.tTestVsBaseline?.pValue ?? 1;
+                      const cohenD = row.tTestVsBaseline?.cohenD ?? 0;
+
                       return (
                         <tr
                           key={row.policy}
@@ -389,52 +472,56 @@ export const ScientificResearchStudio: React.FC = () => {
                         >
                           <td className="py-3 px-4 flex items-center gap-2">
                             {isDrl && <Sparkles className="w-3.5 h-3.5 text-[#00f2ff]" />}
-                            <span className={isDrl ? 'text-[#00f2ff] font-bold' : 'text-white'}>{row.policyName}</span>
-                          </td>
-                          <td className="py-3 px-4">
-                            <span className="text-white font-bold">{row.tph.mean.toFixed(0)}</span>
-                            <span className="text-[10px] text-[#6b7280]"> ± {row.tph.std.toFixed(1)}</span>
-                            <div className="text-[10px] text-[#6b7280]">
-                              95% CI: [{row.tph.ci95[0].toFixed(0)}, {row.tph.ci95[1].toFixed(0)}]
-                            </div>
-                          </td>
-                          <td className="py-3 px-4">
-                            <span className="text-white font-bold">{row.shovelWaitTimeMin.mean.toFixed(2)}</span>
-                            <span className="text-[10px] text-[#6b7280]"> ± {row.shovelWaitTimeMin.std.toFixed(2)}</span>
-                          </td>
-                          <td className="py-3 px-4">
-                            <span className="text-white font-bold">{row.sagEnergyKwhT.mean.toFixed(2)}</span>
-                            <span className="text-[10px] text-[#6b7280]"> ± {row.sagEnergyKwhT.std.toFixed(2)}</span>
-                          </td>
-                          <td className="py-3 px-4">
-                            <span className="text-white font-bold">${row.totalUnitCost.mean.toFixed(2)}</span>
-                            <span className="text-[10px] text-[#6b7280]"> ± ${row.totalUnitCost.std.toFixed(2)}</span>
-                          </td>
-                          <td className="py-3 px-4">
-                            <span className={isDrl ? 'text-emerald-400 font-bold' : 'text-white'}>
-                              {row.reward.mean.toFixed(1)}
+                            <span className={isDrl ? 'text-[#00f2ff] font-bold' : 'text-white'}>
+                              {row.policyLabel || row.policy}
                             </span>
                           </td>
                           <td className="py-3 px-4">
-                            {isBaseline ? (
+                            <span className="text-white font-bold">{tphMean}</span>
+                            <span className="text-[10px] text-[#6b7280]"> ± {tphStd}</span>
+                            <div className="text-[10px] text-[#6b7280]">
+                              95% CI: [{tphCiLow}, {tphCiHigh}]
+                            </div>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className="text-white font-bold">{waitMean}</span>
+                            <span className="text-[10px] text-[#6b7280]"> ± {waitStd}</span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className="text-white font-bold">{sagMean}</span>
+                            <span className="text-[10px] text-[#6b7280]"> ± {sagStd}</span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className="text-white font-bold">${costMean}</span>
+                            <span className="text-[10px] text-[#6b7280]"> ± ${costStd}</span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={isDrl ? 'text-emerald-400 font-bold' : 'text-white'}>
+                              {rewardMean}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4">
+                            {isBaseline || !row.tTestVsBaseline ? (
                               <span className="text-[#6b7280] italic">Línea Base</span>
                             ) : (
                               <div>
-                                <span className="text-emerald-400 font-bold">t = {row.tTestVsBaseline.tStat > 0 ? `+${row.tTestVsBaseline.tStat.toFixed(2)}` : row.tTestVsBaseline.tStat.toFixed(2)}</span>
+                                <span className="text-emerald-400 font-bold">
+                                  t = {tStat > 0 ? `+${tStat.toFixed(2)}` : tStat.toFixed(2)}
+                                </span>
                                 <div className="text-[10px] text-[#6b7280]">
-                                  {row.tTestVsBaseline.pValue < 0.001 ? 'p < 0.001 (***)' : `p = ${row.tTestVsBaseline.pValue.toFixed(4)}`}
+                                  {pVal < 0.001 ? 'p < 0.001 (***)' : `p = ${pVal.toFixed(4)}`}
                                 </div>
                               </div>
                             )}
                           </td>
                           <td className="py-3 px-4">
-                            {isBaseline ? (
+                            {isBaseline || !row.tTestVsBaseline ? (
                               <span className="text-[#6b7280]">—</span>
                             ) : (
-                              <span className={row.tTestVsBaseline.cohensD > 0.8 ? 'text-[#00f2ff] font-bold' : 'text-white'}>
-                                d = {row.tTestVsBaseline.cohensD.toFixed(2)}
+                              <span className={cohenD > 0.8 ? 'text-[#00f2ff] font-bold' : 'text-white'}>
+                                d = {cohenD.toFixed(2)}
                                 <span className="text-[10px] text-[#6b7280] block">
-                                  {row.tTestVsBaseline.cohensD > 0.8 ? '(Efecto Grande)' : '(Efecto Medio)'}
+                                  {cohenD > 0.8 ? '(Efecto Grande)' : '(Efecto Medio)'}
                                 </span>
                               </span>
                             )}
@@ -1048,12 +1135,18 @@ export const ScientificResearchStudio: React.FC = () => {
                             Rango {pt.rank}
                           </span>
                         </td>
-                        <td className="py-2.5 px-3 text-white">{pt.policyName}</td>
-                        <td className="py-2.5 px-3">{pt.powderFactor.toFixed(2)} kg/m³</td>
-                        <td className="py-2.5 px-3 font-bold text-white">{pt.tph.toFixed(0)}</td>
-                        <td className="py-2.5 px-3">{pt.sagEnergyKwhT.toFixed(2)} kWh/t</td>
-                        <td className="py-2.5 px-3">${pt.unitCost.toFixed(2)}</td>
-                        <td className="py-2.5 px-3 text-[#00f2ff] font-bold">{pt.compositeReward.toFixed(1)}</td>
+                        <td className="py-2.5 px-3 text-white font-mono text-[11px]">
+                          {pt.policy === 'drl_ppo_agent'
+                            ? 'DRL PPO Multi-Objetivo'
+                            : pt.policy === 'heuristic_min_queue'
+                            ? 'Heurística Min-Queue'
+                            : 'Asignación Fija (FIFO)'}
+                        </td>
+                        <td className="py-2.5 px-3">{(pt.powderFactor ?? 0).toFixed(2)} kg/m³</td>
+                        <td className="py-2.5 px-3 font-bold text-white">{(pt.tph ?? 0).toFixed(0)}</td>
+                        <td className="py-2.5 px-3">{(pt.sagEnergyKwhT ?? 0).toFixed(2)} kWh/t</td>
+                        <td className="py-2.5 px-3">${(pt.unitCostUsd ?? 0).toFixed(2)}</td>
+                        <td className="py-2.5 px-3 text-[#00f2ff] font-bold">{(pt.compositeReward ?? 0).toFixed(1)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1197,6 +1290,17 @@ export const ScientificResearchStudio: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Modal Dossier de Investigación Científica e Indicaciones */}
+      <AcademicDossierModal
+        isOpen={isDossierModalOpen}
+        onClose={() => setIsDossierModalOpen(false)}
+        caseStudy={activeCaseStudy}
+        benchmarks={benchmarks}
+        sampleSize={sampleSize}
+        randomSeed={randomSeed}
+        powderFactor={powderFactor}
+      />
     </div>
   );
 };

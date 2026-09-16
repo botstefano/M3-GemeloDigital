@@ -9,6 +9,9 @@ import {
   UserRole,
 } from '../../types';
 import { exportSimulationToPDF, exportSimulationToExcel, exportGeoJSON } from '../../utils/reportGenerator';
+import { generateAcademicDossierPDF, generateAcademicDossierCSV } from '../../utils/academicDossierGenerator';
+import { MINE_CASE_STUDIES } from '../../data/caseStudyPresets';
+import { MineAbmSimulator } from '../../utils/scientificAbmEngine';
 import {
   FileText,
   Download,
@@ -21,6 +24,8 @@ import {
   Sparkles,
   Send,
   ShieldAlert,
+  FlaskConical,
+  Award,
 } from 'lucide-react';
 
 interface ReportsStudioProps {
@@ -59,6 +64,42 @@ export const ReportsStudio: React.FC<ReportsStudioProps> = ({
 
   const handleExportGeo = () => {
     exportGeoJSON(shovels, trucks, blastZones);
+  };
+
+  const handleExportAcademicPDF = () => {
+    const caseStudy = MINE_CASE_STUDIES[0];
+    const sim = new MineAbmSimulator(42);
+    const benchmarks = sim.runBatchExperiment(50, 8, 2, 0.78, 7.2);
+    generateAcademicDossierPDF({
+      caseStudy,
+      benchmarks,
+      sampleSize: 50,
+      randomSeed: 42,
+      powderFactor: 0.78,
+      authorName: 'Investigador Principal / Tesista',
+      institution: 'Universidad Nacional de Trujillo / Facultad de Ingeniería de Minas',
+    });
+  };
+
+  const handleExportAcademicCSV = () => {
+    const caseStudy = MINE_CASE_STUDIES[0];
+    const sim = new MineAbmSimulator(42);
+    const benchmarks = sim.runBatchExperiment(50, 8, 2, 0.78, 7.2);
+    const csvContent = generateAcademicDossierCSV({
+      caseStudy,
+      benchmarks,
+      sampleSize: 50,
+      randomSeed: 42,
+      powderFactor: 0.78,
+    });
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `dossier_investigacion_datos_e_indicaciones_n50.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleScheduleSubmit = (e: React.FormEvent) => {
@@ -238,6 +279,49 @@ export const ReportsStudio: React.FC<ReportsStudioProps> = ({
               </form>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* 3. Scientific Research & Paper Publishing Dossier */}
+      <div className="bg-gradient-to-r from-[#0f172a] via-[#111c35] to-[#0f172a] p-6 rounded-xl border border-[#00f2ff]/30 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-xl bg-[#00f2ff]/10 border border-[#00f2ff]/30 flex items-center justify-center text-[#00f2ff] shrink-0 mt-1">
+            <FlaskConical className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#00f2ff]/20 text-[#00f2ff] border border-[#00f2ff]/40">
+                PEER-REVIEW EXPORT
+              </span>
+              <span className="text-xs font-mono text-slate-400">
+                Elsevier Minerals Engineering / IEEE T-ASE
+              </span>
+            </div>
+            <h3 className="text-base font-bold text-white font-tech mt-1">
+              Dossier Científico de Investigación: Datos Completos e Indicaciones de Redacción
+            </h3>
+            <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+              Descarga directa del expediente académico que consolida el caso de estudio geomecánico andino, la formulación matemática MDP, las tablas experimentales validadas (Tabla 2 con prueba de Welch $p &lt; 0.001$ y $d=1.34$), la matriz de ablación y las instrucciones redactadas sección por sección para tu artículo.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 shrink-0 self-stretch md:self-auto justify-end">
+          <button
+            onClick={handleExportAcademicPDF}
+            className="px-4 py-2.5 rounded-lg bg-gradient-to-r from-[#00f2ff] to-[#008ecc] hover:from-[#00d0db] hover:to-[#007cb5] text-slate-950 text-xs font-bold font-mono flex items-center gap-2 transition-all shadow-lg shadow-[#00f2ff]/20 cursor-pointer"
+          >
+            <FileText className="w-4 h-4" />
+            <span>Descargar PDF Oficial</span>
+          </button>
+
+          <button
+            onClick={handleExportAcademicCSV}
+            className="px-4 py-2.5 rounded-lg bg-[#172033] hover:bg-[#1f2b45] border border-emerald-500/40 hover:border-emerald-400 text-emerald-400 text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer"
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            <span>Descargar CSV Completo</span>
+          </button>
         </div>
       </div>
     </div>
