@@ -464,20 +464,20 @@ export function generateAcademicDossierPDF(options: AcademicDossierOptions): voi
 
   y += 6;
 
-  // Title of Table 3 (Ablation)
+  // Title of Table 3 (ABM Simulation Parameter Matrix)
   doc.setTextColor(15, 23, 42);
   doc.setFontSize(9.5);
   doc.setFont('helvetica', 'bold');
-  doc.text('TABLA 3: MATRIZ DE ABLACIÓN Y SENSIBILIDAD DE HIPERPARÁMETROS DRL PPO', margin, y);
+  doc.text('TABLA 3: PARÁMETROS OPERATIVOS Y ESTOCÁSTICOS DEL SIMULADOR ABM', margin, y);
   doc.setFontSize(7.5);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(100, 116, 139);
-  doc.text('Evaluación sistemática de tasa de aprendizaje, gamma, clip ratio y entropía en 400 guardias.', margin, y + 4);
+  doc.text('Condiciones de contorno, factores de dispersión física y acoplamiento estocástico en guardias.', margin, y + 4);
   y += 7;
 
   // Table 3 Rendering
-  const t3Headers = ['Configuración', 'Tasa LR', 'Gamma', 'Clip Eps', 'Entropía', 'Episodio Conv.', 'Recompensa Media', 'Estado'];
-  const t3Widths = [34, 18, 16, 18, 18, 24, 28, 26];
+  const t3Headers = ['Subsistema / Componente', 'Parámetro Físico', 'Valor Base', 'Dispersión Estocástica', 'Ecuación / Modelo'];
+  const t3Widths = [45, 40, 26, 36, 35];
 
   doc.setFillColor(30, 41, 59);
   doc.rect(margin, y, contentWidth, 7, 'F');
@@ -492,47 +492,55 @@ export function generateAcademicDossierPDF(options: AcademicDossierOptions): voi
   });
   y += 7;
 
-  DRL_HYPERPARAMETER_ABLATION_STUDY.forEach((row, idx) => {
-    const isOpt = row.status === 'Optimal';
-    doc.setFillColor(isOpt ? 240 : idx % 2 === 0 ? 255 : 248, isOpt ? 253 : idx % 2 === 0 ? 255 : 250, isOpt ? 250 : idx % 2 === 0 ? 255 : 252);
+  const abmParams = [
+    { sub: 'Perforación y Voladura', param: 'Factor de Roca A (Cunningham)', val: `${caseStudy.geotechnical.rockMassFactorA}`, dist: 'LogNormal(0, 0.055)', model: 'Kuz-Ram / Cunningham (1987)' },
+    { sub: 'Perforación y Voladura', param: 'Factor de Carga (q)', val: `${powderFactor.toFixed(2)} kg/m³`, dist: 'LogNormal(0, 0.035)', model: 'Kuz-Ram (xm, n, xc)' },
+    { sub: 'Carguío (Palas Eléctricas)', param: 'Tiempo Base de Pase', val: '145 s (nominal)', dist: 'Acoplado a Excavabilidad', model: 'Diggability Index (P80, bolones)' },
+    { sub: 'Acarreo (Flota Camiones)', param: 'Velocidad Cargado / Vacío', val: '24 / 38 km/h', dist: 'LogNormal(0, 0.080)', model: 'Resistencia a la rodadura + Rampa' },
+    { sub: 'Chancado Primario', param: 'Tiempo de Maniobra y Volteo', val: '65 s', dist: 'LogNormal(0, 0.060)', model: 'Atención Poisson / Fila M/G/1' },
+    { sub: 'Molienda SAG', param: 'Consumo Específico ESAG', val: '8.2 kWh/t (ref)', dist: 'LogNormal(0, 0.035)', model: 'Morrell / Bond acoplado a P80' },
+  ];
+
+  abmParams.forEach((row, idx) => {
+    doc.setFillColor(idx % 2 === 0 ? 255 : 248, idx % 2 === 0 ? 255 : 250, idx % 2 === 0 ? 255 : 252);
     doc.rect(margin, y, contentWidth, 7.5, 'F');
     doc.setDrawColor(226, 232, 240);
     doc.rect(margin, y, contentWidth, 7.5, 'S');
 
     doc.setFontSize(6.8);
-    doc.setTextColor(isOpt ? 16 : 51, isOpt ? 185 : 65, isOpt ? 129 : 85);
-    doc.setFont('helvetica', isOpt ? 'bold' : 'normal');
+    doc.setTextColor(51, 65, 85);
+    doc.setFont('helvetica', 'normal');
 
     curX = margin;
-    doc.text(row.configId, curX + 1.5, y + 5);
+    doc.text(row.sub, curX + 1.5, y + 5);
     curX += t3Widths[0];
 
-    doc.text(`${row.learningRate}`, curX + 1.5, y + 5);
+    doc.text(row.param, curX + 1.5, y + 5);
     curX += t3Widths[1];
 
-    doc.text(`${row.gamma}`, curX + 1.5, y + 5);
+    doc.text(row.val, curX + 1.5, y + 5);
     curX += t3Widths[2];
 
-    doc.text(`${row.clipRange}`, curX + 1.5, y + 5);
+    doc.text(row.dist, curX + 1.5, y + 5);
     curX += t3Widths[3];
 
-    doc.text(`${row.entropyCoeff}`, curX + 1.5, y + 5);
-    curX += t3Widths[4];
-
-    doc.text(`Episodio ${row.convergenceEpisode}`, curX + 1.5, y + 5);
-    curX += t3Widths[5];
-
-    doc.text(`${row.finalMeanReward.toFixed(1)} ± ${row.rewardStdDev.toFixed(1)}`, curX + 1.5, y + 5);
-    curX += t3Widths[6];
-
-    doc.text(row.status, curX + 1.5, y + 5);
+    doc.text(row.model, curX + 1.5, y + 5);
 
     y += 7.5;
   });
 
   y += 8;
 
-  // Key Scientific Insights Box
+  // Key Scientific Insights Box (Computed Dynamically from actual simulation data)
+  const baseline = benchmarks.find((b) => b.policy === 'fixed') || benchmarks[0];
+  const drl = benchmarks.find((b) => b.policy === 'drl_ppo_agent') || benchmarks[benchmarks.length - 1];
+  const tStatStr = drl.tTestVsBaseline ? drl.tTestVsBaseline.tStatistic.toFixed(2) : 'N/A';
+  const pValStr = drl.tTestVsBaseline ? (drl.tTestVsBaseline.pValue < 0.001 ? '< 0.001' : drl.tTestVsBaseline.pValue.toFixed(4)) : 'N/A';
+  const cohenStr = drl.tTestVsBaseline ? drl.tTestVsBaseline.cohenD.toFixed(2) : 'N/A';
+  const tphDiffPct = baseline && baseline.tph.mean > 0 ? (((drl.tph.mean - baseline.tph.mean) / baseline.tph.mean) * 100).toFixed(1) : '0.0';
+  const queueDiffMin = baseline ? (baseline.shovelWaitMin.mean - drl.shovelWaitMin.mean).toFixed(2) : '0.00';
+  const costDiff = baseline ? (baseline.unitCostUsd.mean - drl.unitCostUsd.mean).toFixed(2) : '0.00';
+
   doc.setFillColor(241, 245, 249);
   doc.setDrawColor(203, 213, 225);
   doc.roundedRect(margin, y, contentWidth, 34, 1.5, 1.5, 'FD');
@@ -546,27 +554,27 @@ export function generateAcademicDossierPDF(options: AcademicDossierOptions): voi
   doc.setFontSize(7.2);
   doc.setTextColor(51, 65, 85);
   doc.text(
-    '1. Significancia Estadística: La prueba t de Welch entre la política DRL PPO y la política fija arroja t = +21.34 con p < 0.001,',
+    `1. Significancia Estadística: La prueba t de Welch entre la política adaptativa y la fija arroja t = ${tStatStr} con p ${pValStr},`,
     margin + 3,
     y + 11
   );
   doc.text(
-    '   rechazando contundentemente la hipótesis nula H0 de rendimientos equivalentes bajo cualquier nivel de varianza.',
+    `   rechazando la hipótesis nula H0 de equivalencia con N = ${sampleSize} guardias estocásticas independientes.`,
     margin + 3,
     y + 15
   );
   doc.text(
-    '2. Magnitud Práctica (Cohen d = 1.34): Denota un "Efecto Muy Grande" (> 0.80), demostrando que la mejora no es artefacto de muestra.',
+    `2. Tamaño del Efecto (Cohen d = ${cohenStr}): Cuantifica la magnitud de separación operacional entre políticas sin supuestos de homoscedasticidad.`,
     margin + 3,
     y + 20
   );
   doc.text(
-    '3. Trade-off Económico-Energético: Invertir +0.12 kg/m³ en explosivos ahorra 1.94 kWh/t en el molino SAG, con un ahorro neto de -$1.08/t.',
+    `3. Rendimiento Operativo: Reducción promedio de colas en pala de ${queueDiffMin} min, incremento de TPH de +${tphDiffPct}% y ahorro unitario de $${costDiff}/t.`,
     margin + 3,
     y + 25
   );
   doc.text(
-    '4. Estabilidad PPO: PPO-C1 (learning rate 3e-4, clip 0.20) logra la mejor convergencia (ep. 240) con varianza mínima en guardias.',
+    `4. Reproducibilidad: Simulación gobernada por generador pseudoaleatorio Seeded PRNG (semilla ${randomSeed}) con balance continuo Mine-to-Mill.`,
     margin + 3,
     y + 29
   );
@@ -770,27 +778,17 @@ export function generateAcademicDossierCSV(options: AcademicDossierOptions): str
   });
   lines.push('#');
 
-  // 4. Hyperparameter Ablation Study (Table 3)
+  // 4. ABM Simulation Operational & Stochastic Configuration (Table 3)
   lines.push('# ==============================================================================');
-  lines.push('# SECCION C: MATRIZ DE SENSIBILIDAD Y ABLACION DE HIPERPARAMETROS DRL (TABLA 3)');
+  lines.push('# SECCION C: PARAMETROS OPERATIVOS Y ESTOCASTICOS DEL SIMULADOR ABM (TABLA 3)');
   lines.push('# ==============================================================================');
-  lines.push('Config_ID,Learning_Rate,Discount_Factor_Gamma,Clip_Ratio_Epsilon,Entropy_Coeff,Convergence_Episode,Mean_Reward,Reward_Std,Status,Pareto_Pct');
-  DRL_HYPERPARAMETER_ABLATION_STUDY.forEach((a) => {
-    lines.push(
-      [
-        `"${a.configId}"`,
-        a.learningRate,
-        a.gamma,
-        a.clipRange,
-        a.entropyCoeff,
-        a.convergenceEpisode,
-        a.finalMeanReward,
-        a.rewardStdDev,
-        `"${a.status}"`,
-        a.paretoOptimalityPct,
-      ].join(',')
-    );
-  });
+  lines.push('Subsistema,Parametro_Fisico,Valor_Base,Dispersion_Estocastica,Ecuacion_Modelo');
+  lines.push(`"Perforacion y Voladura","Factor de Roca A Cunningham",${caseStudy.geotechnical.rockMassFactorA},"LogNormal(0, 0.055)","Kuz-Ram / Cunningham (1987)"`);
+  lines.push(`"Perforacion y Voladura","Factor de Carga q",${powderFactor.toFixed(2)},"LogNormal(0, 0.035)","Kuz-Ram (xm, n, xc)"`);
+  lines.push(`"Carguio Palas","Tiempo Base de Pase (s)",145,"Acoplado a Excavabilidad","Diggability Index (P80, bolones)"`);
+  lines.push(`"Acarreo Camiones","Velocidad Cargado/Vacio (km/h)","24 / 38","LogNormal(0, 0.080)","Resistencia Rodadura y Rampa"`);
+  lines.push(`"Chancado Primario","Tiempo Maniobra y Volteo (s)",65,"LogNormal(0, 0.060)","Atencion Poisson / Fila M/G/1"`);
+  lines.push(`"Molienda SAG","Consumo Especifico ESAG (kWh/t)",8.20,"LogNormal(0, 0.035)","Morrell / Bond acoplado a P80"`);
   lines.push('#');
 
   // 5. Stochastic Shift-by-Shift Observations

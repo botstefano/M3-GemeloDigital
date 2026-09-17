@@ -302,7 +302,7 @@ export const ScientificResearchStudio: React.FC = () => {
         {/* Studio Navigation Tabs */}
         <div className="flex flex-wrap gap-1.5 mt-5 border-b border-[#1b2336] -mb-6">
           {[
-            { id: 'experiments', label: '1. Experimentos Monte Carlo & Tests', icon: BarChart3 },
+            { id: 'experiments', label: '1. Simulación ABM & Monte Carlo', icon: BarChart3 },
             { id: 'case_study', label: '2. Caso de Estudio Geomecánico', icon: Mountain },
             { id: 'figures', label: '3. Figuras de Publicación (300 DPI)', icon: ImageIcon },
             { id: 'ablation', label: '4. Sensibilidad e Hiperparámetros DRL', icon: Sliders },

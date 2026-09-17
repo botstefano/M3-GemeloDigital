@@ -173,38 +173,60 @@ export class MineAbmSimulator {
     const totalSimSeconds = shiftDurationHours * 3600;
     const dtSeconds = 5; // discrete simulation delta in seconds
 
-    // 1. Physical Kuz-Ram calculation for active blast zones
-    const kuzRam = calculateKuzRam({
-      powderFactorKgM3: powderFactor,
-      rockMassFactorA: rockMassA,
-      burdenM: 6.5,
-      spacingM: 7.5,
-      holeDiameterMm: 270,
-      benchHeightM: 15.0,
-      stemmingM: 4.8,
-      explosiveType: 'Heavy_Emulsion',
+    // 1. Physical Kuz-Ram calculation with in-situ geological and blasting spatial heterogeneity
+    // Each shovel operates in a specific bench face with distinct rock mass conditions
+    const shovelsKuzRam: KuzRamOutput[] = [];
+    const shovelsRockA: number[] = [];
+
+    for (let s = 0; s < shovelCount; s++) {
+      // In-situ geological variability per bench:
+      // Shovel 0 at upper bench (elevation 4120, harder porphyry A ~ 7.4), Shovel 1 at lower bench (A ~ 6.9)
+      const benchBaseA = rockMassA * (1.0 + (s === 0 ? 0.06 : -0.05));
+      const benchStochasticA = Math.max(5.0, Math.min(10.5, benchBaseA * this.rng.logNormal(0, 0.055)));
+      shovelsRockA.push(benchStochasticA);
+
+      // Local drilling and blasting execution deviation per blast block
+      const localPowderFactor = Math.max(0.55, Math.min(1.25, powderFactor * this.rng.logNormal(0, 0.035)));
+      const localBurden = 6.5 * this.rng.logNormal(0, 0.025);
+      const localSpacing = 7.5 * this.rng.logNormal(0, 0.025);
+
+      const kz = calculateKuzRam({
+        powderFactorKgM3: localPowderFactor,
+        rockMassFactorA: benchStochasticA,
+        burdenM: localBurden,
+        spacingM: localSpacing,
+        holeDiameterMm: 270,
+        benchHeightM: 15.0,
+        stemmingM: 4.8,
+        explosiveType: 'Heavy_Emulsion',
+      });
+      shovelsKuzRam.push(kz);
+    }
+
+    // Shovels initialization with distinct rock diggabilities
+    const shovels: AbmShovelState[] = Array.from({ length: shovelCount }, (_, i) => {
+      const kz = shovelsKuzRam[i];
+      const diggabilityFactor = Math.max(0.65, Math.min(1.45, 1.0 + (80 - kz.optimumDiggabilityScore) * 0.007));
+      const baseLoadingSec = 145 * diggabilityFactor;
+
+      return {
+        id: `SH-${i + 1}`,
+        name: `P&H 4100XPC #${i + 1}`,
+        benchElevationM: 4120 - i * 15,
+        queue: [],
+        currentTruckId: null,
+        loadingRemainingSec: 0,
+        baseCycleTimeSec: baseLoadingSec + (i === 1 ? 15 : 0),
+        rockDiggabilityScore: kz.optimumDiggabilityScore,
+        kuzRamResult: kz,
+        totalTonnesLoaded: 0,
+        utilizationTimeSec: 0,
+        starvationTimeSec: 0,
+      };
     });
 
-    // Loading time depends directly on Kuz-Ram fragmentation diggability
-    // Diggability scale 0-100: 100 = easy digging (fast passes), 40 = boulder-heavy (slow passes)
-    const diggabilityFactor = Math.max(0.65, Math.min(1.45, 1.0 + (80 - kuzRam.optimumDiggabilityScore) * 0.007));
-    const baseLoadingSec = 145 * diggabilityFactor;
-
-    // 2. Initialize Shovels
-    const shovels: AbmShovelState[] = Array.from({ length: shovelCount }, (_, i) => ({
-      id: `SH-${i + 1}`,
-      name: `P&H 4100XPC #${i + 1}`,
-      benchElevationM: 4120 - i * 15,
-      queue: [],
-      currentTruckId: null,
-      loadingRemainingSec: 0,
-      baseCycleTimeSec: baseLoadingSec + (i === 1 ? 15 : 0),
-      rockDiggabilityScore: kuzRam.optimumDiggabilityScore,
-      kuzRamResult: kuzRam,
-      totalTonnesLoaded: 0,
-      utilizationTimeSec: 0,
-      starvationTimeSec: 0,
-    }));
+    // Tracking delivered tonnage per shovel for Mine-to-Mill blending at primary crusher
+    const deliveredTonnesByShovel: number[] = Array.from({ length: shovelCount }, () => 0);
 
     // 3. Initialize Crusher
     const crusher: AbmCrusherState = {
@@ -213,8 +235,8 @@ export class MineAbmSimulator {
       dumpRemainingSec: 0,
       baseDumpTimeSec: 65,
       totalTonnesDumped: 0,
-      oreP80BlendMm: kuzRam.p80Mm,
-      sagPowerDrawKwhPerTonne: kuzRam.estimatedSagMillKwhPerTonne,
+      oreP80BlendMm: shovelsKuzRam[0].p80Mm,
+      sagPowerDrawKwhPerTonne: shovelsKuzRam[0].estimatedSagMillKwhPerTonne,
       starvationTimeSec: 0,
     };
 
@@ -226,14 +248,13 @@ export class MineAbmSimulator {
 
     const trucks: AbmTruckState[] = Array.from({ length: truckCount }, (_, i) => {
       const assignedShovel = i % shovelCount;
-      // Stagger initial statuses across the haul loop to prevent initial artificial bunching
       const stagger = i / truckCount;
       let initialStatus: AbmTruckState['status'] = 'hauling';
       let remainingSec = Math.round((haulDistanceM[assignedShovel] / loadedSpeedMs) * (1 - stagger));
 
       if (stagger < 0.25) {
         initialStatus = 'loading';
-        remainingSec = Math.round(baseLoadingSec * (0.3 + stagger));
+        remainingSec = Math.round(shovels[assignedShovel].baseCycleTimeSec * (0.3 + stagger));
       } else if (stagger < 0.5) {
         initialStatus = 'hauling';
         remainingSec = Math.round((haulDistanceM[assignedShovel] / loadedSpeedMs) * 0.5);
@@ -370,7 +391,7 @@ export class MineAbmSimulator {
       });
     }
 
-    // 6. Compute Shift Statistical Aggregates
+    // 6. Compute Shift Statistical Aggregates with Physical Mine-to-Mill Coupling
     const totalTonnesMoved = crusher.totalTonnesDumped;
     const tph = Math.round(totalTonnesMoved / shiftDurationHours);
     const avgShovelWaitMin = totalCycles > 0 ? (totalWaitAtShovelSec / totalCycles) / 60 : 0;
@@ -380,14 +401,43 @@ export class MineAbmSimulator {
     const totalFuelLiters = trucks.reduce((sum, tr) => sum + tr.fuelConsumedLiters, 0);
     const fuelLitersPerTonne = totalTonnesMoved > 0 ? totalFuelLiters / totalTonnesMoved : 0.85;
 
-    // Unit Cost formulation ($/t):
-    // Drill & Blast cost ($0.75 + powderFactor * $0.48) + Haulage Fuel ($1.15/L) + Maintenance & Labor ($2.10/t)
-    const blastCostPerT = 0.55 + powderFactor * 0.42;
-    const haulCostPerT = fuelLitersPerTonne * 1.18 + 1.45;
-    const plantCostPerT = 1.10;
-    const unitCostUsdPerTonne = blastCostPerT + haulCostPerT + plantCostPerT;
+    // Physical Blending at Crusher & SAG Mill:
+    // Blend P80 depends directly on the tonnage proportion actually pulled and dumped from each shovel
+    let weightedP80Sum = 0;
+    let weightedRockASum = 0;
+    let weightedDiggabilitySum = 0;
 
-    const sagEnergyKwhPerTonne = kuzRam.estimatedSagMillKwhPerTonne;
+    for (let s = 0; s < shovelCount; s++) {
+      const delivered = deliveredTonnesByShovel[s] > 0 ? deliveredTonnesByShovel[s] : (totalTonnesMoved / shovelCount);
+      weightedP80Sum += delivered * shovelsKuzRam[s].p80Mm;
+      weightedRockASum += delivered * shovelsRockA[s];
+      weightedDiggabilitySum += delivered * shovels[s].rockDiggabilityScore;
+    }
+
+    const effectiveTotalTonnes = Math.max(1, totalTonnesMoved);
+    const blendP80Mm = weightedP80Sum / effectiveTotalTonnes;
+    const blendRockA = weightedRockASum / effectiveTotalTonnes;
+    const avgDiggability = weightedDiggabilitySum / effectiveTotalTonnes;
+
+    // Physical Morrell / Bond SAG Mill Specific Energy Equation (kWh/t):
+    // E_sag = 8.2 * (blendP80 / 240)^0.38 * (blendRockA / 7.2)^0.25 * grindingNoise
+    // Finer feed (e.g. 135 mm) drastically reduces SAG specific energy; coarse bouldery feed elevates it.
+    const millOperationalVariance = Math.max(0.92, Math.min(1.08, this.rng.logNormal(0, 0.035)));
+    const sagEnergyKwhPerTonne = 8.2 * Math.pow(blendP80Mm / 240, 0.38) * Math.pow(blendRockA / 7.2, 0.25) * millOperationalVariance;
+
+    // Unit Cost formulation ($/t) coupled to real operational physics:
+    // 1. Drilling & Blasting: explosive and accessory cost per tonne
+    const blastCostPerT = 0.55 + powderFactor * 0.42;
+    // 2. Haulage Diesel cost: ($1.18/liter)
+    const haulDieselCostPerT = fuelLitersPerTonne * 1.18;
+    // 3. SAG Mill Electrical Energy cost: ($0.088 per kWh)
+    const sagElectricityCostPerT = sagEnergyKwhPerTonne * 0.088;
+    // 4. Ground-engaging tools & shovel teeth wear (higher cost if rock is poorly fragmented / low diggability)
+    const equipmentWearCostPerT = 0.85 + (100 - avgDiggability) * 0.0075 + (avgShovelWaitMin > 2.5 ? 0.15 : 0);
+    // 5. Fixed plant, crusher liners, and operator labor
+    const fixedPlantLaborPerT = 0.95;
+
+    const unitCostUsdPerTonne = blastCostPerT + haulDieselCostPerT + sagElectricityCostPerT + equipmentWearCostPerT + fixedPlantLaborPerT;
     const co2KgPerTonne = fuelLitersPerTonne * 2.68 + (sagEnergyKwhPerTonne * 0.45); // Diesel + Grid factor
 
     // OEE = Availability * Performance * Quality
@@ -397,10 +447,10 @@ export class MineAbmSimulator {
 
     // Multi-objective Composite Reward
     const normTph = Math.min(100, (tph / 5000) * 100);
-    const normQual = Math.max(0, 100 - Math.abs(kuzRam.p80Mm - 155) * 0.7);
+    const normQual = Math.max(0, 100 - Math.abs(blendP80Mm - 155) * 0.7);
     const normCost = (unitCostUsdPerTonne / 7.5) * 100;
     const normEnergy = (sagEnergyKwhPerTonne / 14) * 100;
-    const compositeReward = Math.round((0.35 * normTph + 0.25 * normQual - 0.20 * normCost - 0.20 * normEnergy) * 10) / 10;
+    const compositeReward = Math.round((0.35 * normTph + 0.25 * normQual - 0.20 * normCost - 0.20 * normEnergy) * 100) / 100;
 
     return {
       policy,
@@ -408,10 +458,10 @@ export class MineAbmSimulator {
       repetitionId,
       totalTonnes: totalTonnesMoved,
       tph,
-      shovelWaitTimeMin: Math.round(avgShovelWaitMin * 100) / 100,
-      crusherWaitTimeMin: Math.round(avgCrusherWaitMin * 100) / 100,
-      truckCycleTimeMin: Math.round(avgCycleTimeMin * 100) / 100,
-      fuelLitersPerTonne: Math.round(fuelLitersPerTonne * 100) / 100,
+      shovelWaitTimeMin: Math.round(avgShovelWaitMin * 1000) / 1000,
+      crusherWaitTimeMin: Math.round(avgCrusherWaitMin * 1000) / 1000,
+      truckCycleTimeMin: Math.round(avgCycleTimeMin * 1000) / 1000,
+      fuelLitersPerTonne: Math.round(fuelLitersPerTonne * 1000) / 1000,
       sagEnergyKwhPerTonne: Math.round(sagEnergyKwhPerTonne * 100) / 100,
       unitCostUsdPerTonne: Math.round(unitCostUsdPerTonne * 100) / 100,
       co2KgPerTonne: Math.round(co2KgPerTonne * 100) / 100,
