@@ -84,6 +84,7 @@ export const DrlTrainingStudio: React.FC<DrlTrainingStudioProps> = ({
   const handleDeployPolicy = () => {
     const newVersion = `${algorithm}-M-3-v${(currentEpisode / 10).toFixed(1)}-Deploy`;
     setDeployedModelVersion(newVersion);
+    onUpdateParams({ truckDispatchPolicy: algorithm === 'SAC' ? 'drl_sac_agent' : 'drl_ppo_agent' });
   };
 
   return (

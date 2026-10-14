@@ -38,6 +38,7 @@ interface DigitalTwinHUDProps {
   params: SimulationParams;
   onUpdateParams: (newParams: Partial<SimulationParams>) => void;
   kpis: SimulationKPIs;
+  onTriggerBlast?: (zoneId: string) => void;
 }
 
 export const DigitalTwinHUD: React.FC<DigitalTwinHUDProps> = ({
@@ -50,6 +51,7 @@ export const DigitalTwinHUD: React.FC<DigitalTwinHUDProps> = ({
   params,
   onUpdateParams,
   kpis,
+  onTriggerBlast,
 }) => {
   return (
     <div className="flex flex-col gap-4">
@@ -358,6 +360,33 @@ export const DigitalTwinHUD: React.FC<DigitalTwinHUDProps> = ({
                   <div className="text-lg font-bold text-[#00f2ff] font-mono mt-0.5">
                     +{(selectedAgent as BlastZone).kuzRamResult?.energySavingPercentage}%
                   </div>
+                </div>
+
+                {/* Blast Detonation Button inside Inspector */}
+                <div className="col-span-2 sm:col-span-4 mt-2 pt-3 border-t border-[#1f2937] flex flex-wrap items-center justify-between gap-3">
+                  {!(selectedAgent as BlastZone).isBlasted ? (
+                    <>
+                      <div className="text-xs text-[#9ca3af]">
+                        Estado: <span className="text-[#f59e0b] font-semibold">Listo para Voladura (Malla 48 Pozos ANFO/Emulsión)</span>
+                      </div>
+                      <button
+                        onClick={() => onTriggerBlast?.((selectedAgent as BlastZone).id)}
+                        className="px-4 py-2 bg-gradient-to-r from-red-600 via-orange-600 to-amber-600 hover:brightness-110 text-white rounded-lg font-mono font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-[0_0_20px_rgba(239,68,68,0.5)] animate-pulse cursor-pointer border border-red-400/40"
+                      >
+                        <span className="text-sm">💥</span> Detonar Polígono {(selectedAgent as BlastZone).id}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-xs text-[#10b981] flex items-center gap-2 font-semibold font-mono">
+                        <CheckCircle className="w-4 h-4 text-[#10b981]" />
+                        Tronadura Completada • Muckpile Activo
+                      </div>
+                      <span className="text-xs font-mono text-[#00f2ff] bg-[#00f2ff]/10 px-2.5 py-1 rounded border border-[#00f2ff]/30">
+                        P80: {(selectedAgent as BlastZone).kuzRamResult?.p80Mm} mm • Pala SH-01 Asignable
+                      </span>
+                    </>
+                  )}
                 </div>
               </>
             )}

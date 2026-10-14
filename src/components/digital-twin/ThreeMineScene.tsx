@@ -41,10 +41,26 @@ export const ThreeMineScene: React.FC<ThreeMineSceneProps> = ({
   const particleSystems = useRef<THREE.Points[]>([]);
   const heatmapMeshRef = useRef<THREE.Mesh | null>(null);
 
+  // Fresh refs to prevent stale closures in requestAnimationFrame animate()
+  const cameraModeRef = useRef(cameraMode);
+  cameraModeRef.current = cameraMode;
+  const selectedAgentIdRef = useRef(selectedAgentId);
+  selectedAgentIdRef.current = selectedAgentId;
+  const trucksRef = useRef(trucks);
+  trucksRef.current = trucks;
+  const shovelsRef = useRef(shovels);
+  shovelsRef.current = shovels;
+  const drillsRef = useRef(drills);
+  drillsRef.current = drills;
+  const onSelectAgentRef = useRef(onSelectAgent);
+  onSelectAgentRef.current = onSelectAgent;
+  const onTriggerBlastRef = useRef(onTriggerBlast);
+  onTriggerBlastRef.current = onTriggerBlast;
+
   // Orbit state
   const isDragging = useRef(false);
   const previousMousePosition = useRef({ x: 0, y: 0 });
-  const cameraSpherical = useRef({ radius: 140, theta: 0.8, phi: 1.1 });
+  const cameraSpherical = useRef({ radius: 155, theta: 0.75, phi: 0.68 });
   const cameraTarget = useRef<THREE.Vector3>(new THREE.Vector3(0, 4, 0));
 
   const [fps, setFps] = useState(60);
@@ -180,8 +196,8 @@ export const ThreeMineScene: React.FC<ThreeMineSceneProps> = ({
           topGroup = topGroup.parent;
         }
         if (topGroup && topGroup.userData.agentData) {
-          if (onSelectAgent) {
-            onSelectAgent(topGroup.userData.agentData);
+          if (onSelectAgentRef.current) {
+            onSelectAgentRef.current(topGroup.userData.agentData);
           }
         }
       }
@@ -403,39 +419,69 @@ export const ThreeMineScene: React.FC<ThreeMineSceneProps> = ({
   const updateCameraPosition = () => {
     if (!cameraRef.current) return;
     const camera = cameraRef.current;
+    const mode = cameraModeRef.current;
+    const currentSelectedId = selectedAgentIdRef.current;
+    const currentTrucks = trucksRef.current;
+    const currentShovels = shovelsRef.current;
+    const currentDrills = drillsRef.current;
 
-    if (cameraMode === 'aerial') {
-      camera.position.lerp(new THREE.Vector3(0, 180, 0.1), 0.05);
-      camera.lookAt(0, 0, 0);
-    } else if (cameraMode === 'follow' || cameraMode === 'first_person') {
+    if (mode === 'aerial') {
+      // Top-down tactical aerial view
+      camera.position.lerp(new THREE.Vector3(0, 190, 0.1), 0.08);
+      cameraTarget.current.lerp(new THREE.Vector3(0, 0, 0), 0.08);
+      camera.lookAt(cameraTarget.current);
+    } else if (mode === 'follow' || mode === 'first_person') {
       let targetPos = new THREE.Vector3(0, 4, 0);
-      if (selectedAgentId) {
-        const truck = trucks.find((t) => t.id === selectedAgentId);
-        const shovel = shovels.find((s) => s.id === selectedAgentId);
-        const drill = drills.find((d) => d.id === selectedAgentId);
-        if (truck) targetPos = new THREE.Vector3(truck.x, truck.y, truck.z);
-        else if (shovel) targetPos = new THREE.Vector3(shovel.x, shovel.y, shovel.z);
-        else if (drill) targetPos = new THREE.Vector3(drill.x, drill.y, drill.z);
-      } else if (trucks.length > 0) {
-        targetPos = new THREE.Vector3(trucks[0].x, trucks[0].y, trucks[0].z);
+      let targetRot = 0;
+
+      if (currentSelectedId) {
+        const truck = currentTrucks.find((t) => t.id === currentSelectedId);
+        const shovel = currentShovels.find((s) => s.id === currentSelectedId);
+        const drill = currentDrills.find((d) => d.id === currentSelectedId);
+        if (truck) {
+          targetPos = new THREE.Vector3(truck.x, truck.y, truck.z);
+          targetRot = truck.rotation;
+        } else if (shovel) {
+          targetPos = new THREE.Vector3(shovel.x, shovel.y, shovel.z);
+          targetRot = shovel.rotation;
+        } else if (drill) {
+          targetPos = new THREE.Vector3(drill.x, drill.y, drill.z);
+          targetRot = drill.rotation;
+        }
+      } else if (currentTrucks.length > 0) {
+        targetPos = new THREE.Vector3(currentTrucks[0].x, currentTrucks[0].y, currentTrucks[0].z);
+        targetRot = currentTrucks[0].rotation;
       }
 
-      cameraTarget.current.lerp(targetPos, 0.08);
+      cameraTarget.current.lerp(targetPos, 0.1);
 
-      if (cameraMode === 'first_person') {
-        camera.position.lerp(new THREE.Vector3(targetPos.x, targetPos.y + 4, targetPos.z), 0.1);
-        camera.lookAt(targetPos.x + 20, targetPos.y + 2, targetPos.z);
-      } else {
-        const offset = new THREE.Vector3(
-          targetPos.x + 25 * Math.sin(cameraSpherical.current.theta),
-          targetPos.y + 16,
-          targetPos.z + 25 * Math.cos(cameraSpherical.current.theta)
+      if (mode === 'first_person') {
+        // Cockpit view in driver's cabin looking forward along vehicle orientation
+        const cabinPos = new THREE.Vector3(
+          targetPos.x - Math.sin(targetRot) * 1.5,
+          targetPos.y + 3.8,
+          targetPos.z - Math.cos(targetRot) * 1.5
         );
-        camera.position.lerp(offset, 0.08);
-        camera.lookAt(cameraTarget.current);
+        camera.position.lerp(cabinPos, 0.15);
+        const lookAhead = new THREE.Vector3(
+          targetPos.x + Math.sin(targetRot) * 40,
+          targetPos.y + 2.0,
+          targetPos.z + Math.cos(targetRot) * 40
+        );
+        camera.lookAt(lookAhead);
+      } else {
+        // Third-person chase camera tracking behind vehicle
+        const followPos = new THREE.Vector3(
+          targetPos.x - Math.sin(targetRot) * 28,
+          targetPos.y + 14,
+          targetPos.z - Math.cos(targetRot) * 28
+        );
+        camera.position.lerp(followPos, 0.08);
+        camera.lookAt(new THREE.Vector3(targetPos.x, targetPos.y + 2.5, targetPos.z));
       }
     } else {
       // Free Orbit Mode
+      cameraTarget.current.lerp(new THREE.Vector3(0, 4, 0), 0.06);
       const { radius, theta, phi } = cameraSpherical.current;
       const x = radius * Math.sin(phi) * Math.sin(theta);
       const y = radius * Math.cos(phi);
@@ -456,15 +502,18 @@ export const ThreeMineScene: React.FC<ThreeMineSceneProps> = ({
       color: 0x6e5842,
       roughness: 0.85,
       metalness: 0.1,
+      side: THREE.DoubleSide,
     });
     const benchMaterialMid = new THREE.MeshStandardMaterial({
       color: 0x8a6e4d,
       roughness: 0.9,
       metalness: 0.1,
+      side: THREE.DoubleSide,
     });
     const benchMaterialFloor = new THREE.MeshStandardMaterial({
       color: 0x4a3b2c,
       roughness: 0.95,
+      side: THREE.DoubleSide,
     });
 
     // Bench 1 (Top Level +16m)
@@ -473,11 +522,31 @@ export const ThreeMineScene: React.FC<ThreeMineSceneProps> = ({
     b1.receiveShadow = true;
     pitGroup.add(b1);
 
+    // Berma 1 (Horizontal terrace step at +12m)
+    const berma1 = new THREE.Mesh(
+      new THREE.RingGeometry(70, 75, 36),
+      new THREE.MeshStandardMaterial({ color: 0x5a4734, roughness: 0.9, side: THREE.DoubleSide })
+    );
+    berma1.rotation.x = -Math.PI / 2;
+    berma1.position.y = 12;
+    berma1.receiveShadow = true;
+    pitGroup.add(berma1);
+
     // Bench 2 (Mid Level +8m)
     const b2 = new THREE.Mesh(new THREE.CylinderGeometry(70, 60, 8, 36, 1, true), benchMaterialMid);
     b2.position.y = 8;
     b2.receiveShadow = true;
     pitGroup.add(b2);
+
+    // Berma 2 (Horizontal terrace step at +4m)
+    const berma2 = new THREE.Mesh(
+      new THREE.RingGeometry(55, 60, 36),
+      new THREE.MeshStandardMaterial({ color: 0x5a4734, roughness: 0.9, side: THREE.DoubleSide })
+    );
+    berma2.rotation.x = -Math.PI / 2;
+    berma2.position.y = 4;
+    berma2.receiveShadow = true;
+    pitGroup.add(berma2);
 
     // Bench 3 (Floor Level 0m)
     const floor = new THREE.Mesh(new THREE.CylinderGeometry(55, 55, 2, 36), benchMaterialFloor);
@@ -485,10 +554,10 @@ export const ThreeMineScene: React.FC<ThreeMineSceneProps> = ({
     floor.receiveShadow = true;
     pitGroup.add(floor);
 
-    // Outer Terrain Surrounding
+    // Outer Terrain Surrounding (Ring with hollow center to open the pit crater)
     const outerGround = new THREE.Mesh(
-      new THREE.PlaneGeometry(300, 300, 16, 16),
-      new THREE.MeshStandardMaterial({ color: 0x2b241d, roughness: 0.9 })
+      new THREE.RingGeometry(85, 260, 48),
+      new THREE.MeshStandardMaterial({ color: 0x2b241d, roughness: 0.9, side: THREE.DoubleSide })
     );
     outerGround.rotation.x = -Math.PI / 2;
     outerGround.position.y = 20;
@@ -572,16 +641,17 @@ export const ThreeMineScene: React.FC<ThreeMineSceneProps> = ({
 
   // Helper: Heatmap Plane
   const buildHeatmapPlane = (scene: THREE.Scene) => {
-    const geo = new THREE.PlaneGeometry(120, 120, 32, 32);
+    const geo = new THREE.CircleGeometry(72, 48);
     const mat = new THREE.MeshBasicMaterial({
       color: 0x10b981,
       transparent: true,
       opacity: 0.0,
+      depthWrite: false,
       side: THREE.DoubleSide,
     });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.rotation.x = -Math.PI / 2;
-    mesh.position.y = 4.2;
+    mesh.position.y = 4.3;
     mesh.visible = false;
     heatmapMeshRef.current = mesh;
     scene.add(mesh);
@@ -837,6 +907,102 @@ export const ThreeMineScene: React.FC<ThreeMineSceneProps> = ({
     return group;
   };
 
+  const handleTriggerBlastWithFX = (zone: BlastZone) => {
+    if (zone.isBlasted) return;
+
+    if (sceneRef.current) {
+      const scene = sceneRef.current;
+      const yOrigin = zone.benchElevation === 4120 ? 12 : 4;
+
+      // 1. Point Light Flash
+      const flash = new THREE.PointLight(0xff6600, 25, 150);
+      flash.position.set(zone.x, yOrigin + 4, zone.z);
+      scene.add(flash);
+
+      let flashLife = 1.0;
+      const fadeFlash = () => {
+        flashLife -= 0.05;
+        if (flashLife > 0) {
+          flash.intensity = flashLife * 25;
+          requestAnimationFrame(fadeFlash);
+        } else {
+          scene.remove(flash);
+        }
+      };
+      requestAnimationFrame(fadeFlash);
+
+      // 2. Blast Dust & Fragment Particle Shockwave
+      const pCount = 320;
+      const pGeo = new THREE.BufferGeometry();
+      const positions = new Float32Array(pCount * 3);
+      const velocities: THREE.Vector3[] = [];
+      for (let i = 0; i < pCount; i++) {
+        positions[i * 3] = zone.x + (Math.random() - 0.5) * zone.width;
+        positions[i * 3 + 1] = yOrigin + Math.random() * 2;
+        positions[i * 3 + 2] = zone.z + (Math.random() - 0.5) * zone.length;
+        velocities.push(
+          new THREE.Vector3(
+            (Math.random() - 0.5) * 1.5,
+            Math.random() * 2.6 + 1.2,
+            (Math.random() - 0.5) * 1.5
+          )
+        );
+      }
+      pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      const pMat = new THREE.PointsMaterial({
+        color: 0xf97316,
+        size: 2.8,
+        transparent: true,
+        opacity: 0.95,
+      });
+      const blastParticles = new THREE.Points(pGeo, pMat);
+      scene.add(blastParticles);
+
+      let life = 0;
+      const animateBlast = () => {
+        life += 0.025;
+        const posAttr = blastParticles.geometry.attributes.position as THREE.BufferAttribute;
+        const posArr = posAttr.array as Float32Array;
+        for (let i = 0; i < pCount; i++) {
+          posArr[i * 3] += velocities[i].x;
+          posArr[i * 3 + 1] += velocities[i].y * Math.max(0.15, 1 - life);
+          posArr[i * 3 + 2] += velocities[i].z;
+        }
+        posAttr.needsUpdate = true;
+        pMat.opacity = Math.max(0, 0.95 - life);
+        if (life > 0.25) pMat.color.setHex(0x785338);
+
+        if (life < 1.0) {
+          requestAnimationFrame(animateBlast);
+        } else {
+          scene.remove(blastParticles);
+          blastParticles.geometry.dispose();
+          pMat.dispose();
+        }
+      };
+      requestAnimationFrame(animateBlast);
+    }
+
+    // 3. Camera Shockwave Shake
+    if (cameraRef.current) {
+      const origPos = cameraRef.current.position.clone();
+      let shakeTime = 0;
+      const shakeInterval = setInterval(() => {
+        shakeTime += 40;
+        if (shakeTime < 420 && cameraRef.current) {
+          cameraRef.current.position.x = origPos.x + (Math.random() - 0.5) * 2.4;
+          cameraRef.current.position.y = origPos.y + (Math.random() - 0.5) * 1.6;
+          cameraRef.current.position.z = origPos.z + (Math.random() - 0.5) * 2.4;
+        } else {
+          clearInterval(shakeInterval);
+          if (cameraRef.current) cameraRef.current.position.copy(origPos);
+        }
+      }, 40);
+    }
+
+    onTriggerBlast?.(zone.id);
+  };
+
   return (
     <div className="relative w-full h-full min-h-[480px] bg-[#0a0b0e] rounded overflow-hidden border border-[#1f2937] shadow-2xl">
       {/* 3D WebGL Canvas */}
@@ -870,16 +1036,16 @@ export const ThreeMineScene: React.FC<ThreeMineSceneProps> = ({
           {blastZones.map((zone) => (
             <button
               key={zone.id}
-              onClick={() => onTriggerBlast(zone.id)}
+              onClick={() => handleTriggerBlastWithFX(zone)}
               disabled={zone.isBlasted}
               className={`px-3.5 py-2 rounded text-xs font-semibold tracking-wider uppercase transition-all flex items-center gap-2 shadow-lg ${
                 zone.isBlasted
                   ? 'bg-[#15181e] text-[#6b7280] border border-[#1f2937] cursor-not-allowed'
-                  : 'bg-gradient-to-r from-red-600 to-amber-600 hover:brightness-110 text-white border border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse font-bold'
+                  : 'bg-gradient-to-r from-red-600 via-orange-600 to-amber-600 hover:brightness-110 text-white border border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.5)] animate-pulse font-bold cursor-pointer'
               }`}
             >
               <span className="text-sm">💥</span>
-              {zone.isBlasted ? `${zone.name.substring(0, 18)} (Detonado)` : `Detonar ${zone.id}`}
+              {zone.isBlasted ? `${zone.id} (Detonado)` : `Detonar ${zone.id}`}
             </button>
           ))}
         </div>

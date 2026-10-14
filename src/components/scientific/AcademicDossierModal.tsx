@@ -156,7 +156,7 @@ export const AcademicDossierModal: React.FC<AcademicDossierModalProps> = ({
         {/* Content Body */}
         <div className="p-6 flex-1 overflow-y-auto space-y-6">
           {/* Quick Action Download Buttons */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <button
               onClick={handleDownloadPDF}
               disabled={isGeneratingPdf}
@@ -188,6 +188,23 @@ export const AcademicDossierModal: React.FC<AcademicDossierModalProps> = ({
                 </span>
               </div>
             </button>
+
+            {/* Direct DOCX Download for AI Model */}
+            <a
+              href="/M3_Codigo_Principal_Para_Articulo.docx"
+              download="M3_Codigo_Principal_Para_Articulo.docx"
+              className="p-4 bg-gradient-to-b from-[#1e1b4b] to-[#17153a] hover:from-[#2e266d] hover:to-[#1f1d4d] border border-indigo-500/40 hover:border-indigo-400 rounded-xl transition-all flex flex-col items-center justify-center text-center gap-2 cursor-pointer shadow-lg group"
+            >
+              <div className="w-10 h-10 rounded-lg bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <FileText className="w-5 h-5 text-indigo-300" />
+              </div>
+              <div>
+                <span className="text-xs font-bold font-mono text-indigo-200 block">DOCX Código + Prompt</span>
+                <span className="text-[10px] text-indigo-300/80 font-mono block mt-0.5">
+                  Archivo Word con todo el código fuente listo para pasar a una IA
+                </span>
+              </div>
+            </a>
 
             <button
               onClick={handleDownloadBoth}

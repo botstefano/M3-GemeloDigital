@@ -14,6 +14,7 @@ import {
   Eye,
   Settings,
   Users,
+  Download,
 } from 'lucide-react';
 
 interface AuthAuditStudioProps {
@@ -37,6 +38,20 @@ export const AuthAuditStudio: React.FC<AuthAuditStudioProps> = ({
   const filteredLogs = auditLogs.filter(
     (log) => filterCategory === 'ALL' || log.category === filterCategory
   );
+
+  const handleExportAuditLogs = () => {
+    const csvHeader = 'id,timestamp,userId,userName,userRole,action,category,details,ipAddress,status\n';
+    const csvRows = filteredLogs.map((l) => 
+      `"${l.id}","${l.timestamp}","${l.userId}","${l.userName}","${l.userRole}","${l.action}","${l.category}","${(l.details || '').replace(/"/g, '""')}","${l.ipAddress}","${l.status}"`
+    ).join('\n');
+    const blob = new Blob([csvHeader + csvRows], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `audit_logs_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -231,19 +246,30 @@ export const AuthAuditStudio: React.FC<AuthAuditStudioProps> = ({
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-400">Filtrar:</span>
-              <select
-                value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value)}
-                className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-200"
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-400">Filtrar:</span>
+                <select
+                  value={filterCategory}
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                  className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-200"
+                >
+                  <option value="ALL">Todas las Categorías</option>
+                  <option value="SIMULATION">SIMULATION</option>
+                  <option value="DRL_MODEL">DRL_MODEL</option>
+                  <option value="SECURITY">SECURITY</option>
+                  <option value="REPORT">REPORT</option>
+                </select>
+              </div>
+
+              <button
+                onClick={handleExportAuditLogs}
+                className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-600 rounded-lg text-xs font-mono font-medium flex items-center gap-1.5 transition-all cursor-pointer"
+                title="Descargar registro de auditoría en formato CSV"
               >
-                <option value="ALL">Todas las Categorías</option>
-                <option value="SIMULATION">SIMULATION</option>
-                <option value="DRL_MODEL">DRL_MODEL</option>
-                <option value="SECURITY">SECURITY</option>
-                <option value="REPORT">REPORT</option>
-              </select>
+                <Download className="w-3.5 h-3.5 text-amber-400" />
+                <span>Exportar Logs CSV</span>
+              </button>
             </div>
           </div>
 

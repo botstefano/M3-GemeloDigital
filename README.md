@@ -78,10 +78,37 @@ npm run reproduce
 
 | Artefacto | Ubicación | Descripción |
 |---|---|---|
-| **Dataset Completo (300 Réplicas)** | `output/simulation_replications_300.csv` | Registros turno a turno con varianza estocástica natural. |
+| **Dataset Completo (300 Réplicas)** | `output/simulation_replications_300.csv` | Registros turno a turno con varianza estocástica natural (1,200 observaciones). |
 | **Tabla Comparativa (LaTeX)** | `output/benchmark_table.tex` | Tabla formal de benchmarks con pruebas $t$ de Welch frente al baseline FIFO. |
+| **Motor Python Streamlit (CRISP-DM)** | `streamlit_app/app.py` | Aplicación interactiva con las 6 fases CRISP-DM, modelos ML y explicabilidad. |
+| **Documento Word Completo para IA** | `M3_Codigo_Principal_Para_Articulo.docx` | Archivo con código fuente, modelo matemático y prompt estructurado para redacción de papers. |
 | **Scripts Python de Entrenamiento DRL** | `src/utils/scientificPythonSuite.ts` | Entorno Gymnasium (`mine_abm_gym.py`) y script de entrenamiento PPO (`train_ppo.py`). |
 | **Dossier y Reportes Académicos** | Descargables desde la UI en PDF / CSV | Reporte metodológico consolidado del gemelo digital y simulación estocástica. |
+
+---
+
+## Motor en Python con Streamlit (Metodología CRISP-DM)
+
+El proyecto incluye un motor analítico integral en **Python** montado sobre **Streamlit** (`streamlit_app/app.py`), diseñado bajo el estándar **CRISP-DM** (*Cross-Industry Standard Process for Data Mining*):
+
+### Fases Implementadas:
+1. **EDA (Exploratory Data Analysis):** Histogramas, correlación de Pearson y diagramas de caja (boxplots) con desglose por política de acarreo.
+2. **Entrenamientos Multi-Modelo:** Ajuste comparativo de múltiples algoritmos (Ridge, Lasso, Árboles de Decisión, Random Forest, Gradient Boosting y Redes Neuronales MLP).
+3. **Selección del Mejor Modelo:** Ranking exhaustivo por $R^2$, $RMSE$, $MAE$ y $MAPE$ identificando automáticamente el modelo campeón con análisis de residuales.
+4. **Validación Cruzada ($K$-Fold):** Validación cruzada rigurosa con $k=5$ y $k=10$ pliegues evaluando estabilidad y prevención de overfitting.
+5. **Pruebas Estadísticas Rigurosas:** Test de normalidad de Shapiro-Wilk, prueba de homocedasticidad de Levene, ANOVA / Kruskal-Wallis, test $t$ de Welch y tamaño del efecto $d$ de Cohen.
+6. **Reportes con Interpretabilidad y Explicabilidad:** Cada gráfico, tabla y métrica cuenta con paneles de **interpretabilidad numérica** (qué significan los valores) y **explicabilidad físico-minera** (por qué ocurren físicamente según las leyes de Kuz-Ram, colas $M/G/1$ y molienda SAG).
+
+### Ejecución de Streamlit:
+```bash
+# 1. Instalar dependencias de Python:
+pip install -r streamlit_app/requirements.txt
+
+# 2. Ejecutar la aplicación:
+streamlit run streamlit_app/app.py
+# (O mediante el script: ./run_streamlit.sh)
+```
+La aplicación Streamlit estará disponible en `http://localhost:8501`.
 
 ---
 

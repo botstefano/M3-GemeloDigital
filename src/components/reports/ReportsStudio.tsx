@@ -307,6 +307,15 @@ export const ReportsStudio: React.FC<ReportsStudioProps> = ({
         </div>
 
         <div className="flex flex-wrap items-center gap-3 shrink-0 self-stretch md:self-auto justify-end">
+          <a
+            href="/M3_Codigo_Principal_Para_Articulo.docx"
+            download="M3_Codigo_Principal_Para_Articulo.docx"
+            className="px-4 py-2.5 rounded-lg bg-indigo-950/80 hover:bg-indigo-900 border border-indigo-500/50 hover:border-indigo-400 text-indigo-200 text-xs font-mono font-bold flex items-center gap-2 transition-all shadow-lg cursor-pointer"
+          >
+            <FileText className="w-4 h-4 text-indigo-300" />
+            <span>Descargar DOCX (Código + Prompt IA)</span>
+          </a>
+
           <button
             onClick={handleExportAcademicPDF}
             className="px-4 py-2.5 rounded-lg bg-gradient-to-r from-[#00f2ff] to-[#008ecc] hover:from-[#00d0db] hover:to-[#007cb5] text-slate-950 text-xs font-bold font-mono flex items-center gap-2 transition-all shadow-lg shadow-[#00f2ff]/20 cursor-pointer"

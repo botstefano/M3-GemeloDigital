@@ -279,6 +279,17 @@ export const ScientificResearchStudio: React.FC = () => {
               <span>CSV Completo</span>
             </button>
 
+            {/* Direct DOCX Download for AI Paper Drafting */}
+            <a
+              href="/M3_Codigo_Principal_Para_Articulo.docx"
+              download="M3_Codigo_Principal_Para_Articulo.docx"
+              className="px-3.5 py-2 bg-gradient-to-r from-blue-700 via-indigo-600 to-violet-700 hover:from-blue-600 hover:to-indigo-500 text-white border border-blue-400/40 text-xs font-mono font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-md shadow-blue-500/20"
+              title="Descargar documento Word (.docx) con todo el código fuente principal y el prompt estructurado para la IA"
+            >
+              <FileText className="w-3.5 h-3.5 text-blue-200" />
+              <span>DOCX Código + Prompt IA</span>
+            </a>
+
             <button
               onClick={handleDownloadCompleteResearchBundle}
               className="px-3.5 py-2 bg-[#131b2c] hover:bg-[#1b263e] border border-[#223254] text-[#cbd5e1] hover:text-white text-xs font-mono rounded-lg transition-all flex items-center gap-1.5 cursor-pointer"

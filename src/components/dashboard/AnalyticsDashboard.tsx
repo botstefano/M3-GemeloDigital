@@ -248,7 +248,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                     // Map X: 3500 -> 60, 5600 -> 460
                     const xfix = 60 + ((sol.productivityTph - 3500) / 2100) * 400;
                     // Map Y: $4.00 -> 180, $6.50 -> 20
-                    const yfix实施 = 180 - ((6.5 - sol.costPerTonne) / 2.5) * 160;
+                    const yfix = 180 - ((6.5 - sol.costPerTonne) / 2.5) * 160;
                     const isSelected = sol.id === selectedParetoId;
 
                     return (
@@ -262,17 +262,17 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                       >
                         {/* Glow halo for selected */}
                         {isSelected && (
-                          <circle cx={xfix} cy={yfix实施} r="12" fill="none" stroke="#00f2ff" strokeWidth="2" opacity="0.8" />
+                          <circle cx={xfix} cy={yfix} r="12" fill="none" stroke="#00f2ff" strokeWidth="2" opacity="0.8" />
                         )}
                         <circle
                           cx={xfix}
-                          cy={yfix实施}
+                          cy={yfix}
                           r={sol.isOptimalFrontier ? 6 : 4.5}
                           fill={sol.isOptimalFrontier ? (isSelected ? '#00f2ff' : '#10b981') : '#4b5563'}
                         />
                         <text
                           x={xfix + 8}
-                          y={yfix实施 + 3}
+                          y={yfix + 3}
                           fill={isSelected ? '#00f2ff' : '#9ca3af'}
                           fontSize="9"
                           fontWeight={isSelected ? 'bold' : 'normal'}

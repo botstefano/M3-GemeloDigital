@@ -91,7 +91,10 @@ export const WhatIfStudio: React.FC<WhatIfStudioProps> = ({
   const deltaP80 = draftKuzRam.p80Mm - kpis.currentP80Mm;
 
   const handleApply = () => {
-    onApplyParams(draftParams);
+    onApplyParams({
+      ...draftParams,
+      powderFactorKgM3: draftBlast.powderFactorKgM3,
+    });
   };
 
   const handleReset = () => {
