@@ -35,6 +35,7 @@ import { AuthAuditStudio } from './components/security/AuthAuditStudio';
 import { ArchitectureDeliverables } from './components/architecture/ArchitectureDeliverables';
 import { ScientificResearchStudio } from './components/scientific/ScientificResearchStudio';
 import { FastApiManagerModal } from './components/fastapi/FastApiManagerModal';
+import { AcademicCardWrapper } from './components/common/AcademicCardWrapper';
 import { checkFastApiHealth } from './services/fastapiClient';
 import { calculateKuzRam } from './utils/kuzRam';
 import {
@@ -122,10 +123,11 @@ export default function App() {
             const isLoaded = truck.status === 'hauling_full';
             const nominalSpeed = isLoaded ? 22 : 36;
             const speedFactor = (nominalSpeed / 28) * 0.018 * simSpeed;
-            let nextProgress = truck.progressAlongRoute + speedFactor;
+            const currentProg = truck.progressAlongRoute ?? truck.routeProgress ?? 0;
+            let nextProgress = currentProg + speedFactor;
             let nextStatus = truck.status;
             let nextPayload = truck.currentPayloadTonnes;
-            let nextRounds = truck.totalRoundsCompleted;
+            let nextRounds = truck.totalRoundsCompleted ?? truck.cyclesCompleted ?? 0;
             let assignedShovel = truck.assignedShovelId;
 
             // Route loop transitions
@@ -162,17 +164,47 @@ export default function App() {
               }
             }
 
-            // Slight dynamic tire temp fluctuation based on load & speed
+            // Interpolate position along routePath if available
+            let posX = truck.x;
+            let posY = truck.y;
+            let posZ = truck.z;
+            let rotY = truck.rotation;
+            if (truck.routePath && truck.routePath.length > 1) {
+              const segCount = truck.routePath.length - 1;
+              const scaledT = Math.max(0, Math.min(0.999, nextProgress)) * segCount;
+              const segIdx = Math.floor(scaledT);
+              const segProgress = scaledT - segIdx;
+              const p0 = truck.routePath[segIdx];
+              const p1 = truck.routePath[segIdx + 1];
+              if (p0 && p1) {
+                posX = p0[0] + (p1[0] - p0[0]) * segProgress;
+                posY = p0[1] + (p1[1] - p0[1]) * segProgress;
+                posZ = p0[2] + (p1[2] - p0[2]) * segProgress;
+                rotY = Math.atan2(p1[0] - p0[0], p1[2] - p0[2]);
+              }
+            }
+
+            // Dynamic tire temp and fuel burn fluctuation
             const tireTemp = Math.round((78 + (isLoaded ? 8 : 0) + Math.sin(Date.now() / 8000 + truck.id.charCodeAt(3)) * 3) * 10) / 10;
+            const fuelBurn = isLoaded ? 112.5 : 68.2;
 
             return {
               ...truck,
+              x: posX,
+              y: posY,
+              z: posZ,
+              rotation: rotY,
+              routeProgress: nextProgress,
               progressAlongRoute: nextProgress,
               status: nextStatus,
               currentPayloadTonnes: nextPayload,
+              cyclesCompleted: nextRounds,
               totalRoundsCompleted: nextRounds,
               assignedShovelId: assignedShovel,
+              tireTemperatureC: tireTemp,
               tireTempCelsius: tireTemp,
+              fuelConsumptionLitersPerHour: fuelBurn,
+              fuelBurnRateLph: fuelBurn,
             };
           })
         );
@@ -181,7 +213,7 @@ export default function App() {
         setShovels((prevShovels) =>
           prevShovels.map((sh) => {
             const waitingTrucks = trucks
-              .filter((t) => t.assignedShovelId === sh.id && t.status === 'returning_empty' && t.progressAlongRoute > 0.8)
+              .filter((t) => t.assignedShovelId === sh.id && t.status === 'returning_empty' && ((t.progressAlongRoute ?? t.routeProgress ?? 0) > 0.8))
               .map((t) => t.id);
             const activeTruck = trucks.find((t) => t.assignedShovelId === sh.id && t.status === 'loading');
             return {
@@ -569,6 +601,98 @@ export default function App() {
                 </span>
               </div>
             </div>
+
+            {/* Live Digital Twin Telemetry Table */}
+            <AcademicCardWrapper
+              id="academic-table-twin-telemetry"
+              figureNumber="Tabla DT-1"
+              title="Telemetría en Vivo de Flota CAEX y Frentes de Extracción"
+              subtitle="Estado cinemático, carga útil, ciclo de acarreo y política de despacho en tiempo real"
+              type="table"
+              tableData={trucks.map((t) => {
+                const fuel = t.fuelBurnRateLph ?? t.fuelConsumptionLitersPerHour ?? 75;
+                const prog = t.progressAlongRoute ?? t.routeProgress ?? 0;
+                const rounds = t.totalRoundsCompleted ?? t.cyclesCompleted ?? 0;
+                return {
+                  UnidadCAEX: t.id,
+                  EstadoOperativo: t.status,
+                  CargaTonnes: `${t.currentPayloadTonnes ?? 0} t`,
+                  CapacidadNominal: `${t.capacityTonnes ?? 0} t`,
+                  CiclosCompletados: rounds,
+                  ConsumoCombustibleL_h: `${fuel.toFixed(1)} L/h`,
+                  PalaAsignada: t.assignedShovelId ?? 'N/A',
+                  ProgresoRutaPct: `${(prog * 100).toFixed(0)}%`,
+                };
+              })}
+              interpretation="La telemetría en tiempo real registra la distribución espacial y dinámica de las unidades CAEX a lo largo de las rampas del tajo abierto. La política PPO equilibra las colas dinámicamente asignando camiones a palas activas evitando el fenómeno de agrupamiento (bunching)."
+              physicalExplainability="El gemelo digital 3D modela la resistencia a la rodadura (rolling resistance ~3%), gradiente de rampa (~8-10%) y el peso bruto vehicular (PBV ~400 t) acoplado a la física de excavabilidad generada por la voladura Kuz-Ram en los frentes de carguío."
+            >
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left font-mono">
+                  <thead>
+                    <tr className="border-b border-[#1f2937] text-slate-400 text-[11px]">
+                      <th className="py-2.5 px-3">Unidad CAEX</th>
+                      <th className="py-2.5 px-3">Estado Operativo</th>
+                      <th className="py-2.5 px-3">Carga Actual</th>
+                      <th className="py-2.5 px-3">Pala Asignada</th>
+                      <th className="py-2.5 px-3">Progreso Ciclo</th>
+                      <th className="py-2.5 px-3">Ciclos Turno</th>
+                      <th className="py-2.5 px-3">Consumo Diésel</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#1f2937]/60 text-slate-300">
+                    {trucks.map((t) => {
+                      const isLoaded = t.status === 'hauling_full';
+                      const isLoading = t.status === 'loading';
+                      const isDumping = t.status === 'dumping';
+                      const fuel = t.fuelBurnRateLph ?? t.fuelConsumptionLitersPerHour ?? 75;
+                      const prog = t.progressAlongRoute ?? t.routeProgress ?? 0;
+                      const rounds = t.totalRoundsCompleted ?? t.cyclesCompleted ?? 0;
+                      return (
+                        <tr key={t.id} className="hover:bg-[#15181e] transition-colors">
+                          <td className="py-2.5 px-3 font-bold text-white flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-[#00f2ff] animate-pulse" />
+                            {t.id}
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <span
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                isLoaded
+                                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                                  : isLoading
+                                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                                  : isDumping
+                                  ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
+                                  : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                              }`}
+                            >
+                              {t.status.replace('_', ' ').toUpperCase()}
+                            </span>
+                          </td>
+                          <td className="py-2.5 px-3 font-semibold text-white">
+                            {t.currentPayloadTonnes} / {t.capacityTonnes} t
+                          </td>
+                          <td className="py-2.5 px-3 text-[#00f2ff] font-bold">{t.assignedShovelId}</td>
+                          <td className="py-2.5 px-3">
+                            <div className="flex items-center gap-2">
+                              <div className="w-16 h-1.5 rounded-full bg-[#1f2937] overflow-hidden">
+                                <div
+                                  className="h-full bg-[#00f2ff]"
+                                  style={{ width: `${(prog * 100).toFixed(0)}%` }}
+                                />
+                              </div>
+                              <span className="text-[10px] text-slate-400">{(prog * 100).toFixed(0)}%</span>
+                            </div>
+                          </td>
+                          <td className="py-2.5 px-3 font-mono font-bold text-slate-200">{rounds} vueltas</td>
+                          <td className="py-2.5 px-3 text-emerald-400 font-mono">{fuel.toFixed(1)} L/h</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </AcademicCardWrapper>
           </div>
         )}
 

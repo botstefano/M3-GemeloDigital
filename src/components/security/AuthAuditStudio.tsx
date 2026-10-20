@@ -16,6 +16,7 @@ import {
   Users,
   Download,
 } from 'lucide-react';
+import { AcademicCardWrapper } from '../common/AcademicCardWrapper';
 
 interface AuthAuditStudioProps {
   currentUser: User;
@@ -174,105 +175,117 @@ export const AuthAuditStudio: React.FC<AuthAuditStudioProps> = ({
           </div>
 
           {/* RBAC Permissions Matrix */}
-          <div className="lg:col-span-6 bg-slate-900/80 p-5 rounded-xl border border-slate-800 shadow-lg flex flex-col gap-4">
-            <h3 className="text-sm font-bold text-slate-200 uppercase font-tech pb-2 border-b border-slate-800">
-              Matriz de Permisos por Rol (RBAC + ABAC)
-            </h3>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left">
-                <thead>
-                  <tr className="border-b border-slate-800 text-slate-400 font-mono text-[11px]">
-                    <th className="pb-2">Módulo / Acción</th>
-                    <th className="pb-2 text-center text-rose-400">Admin</th>
-                    <th className="pb-2 text-center text-amber-400">Supervisor</th>
-                    <th className="pb-2 text-center text-purple-400">Ing. Proc.</th>
-                    <th className="pb-2 text-center text-slate-400">Observador</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/60 text-slate-300">
-                  <tr>
-                    <td className="py-2.5 font-medium">Visualización Gemelo 3D</td>
-                    <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
-                    <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
-                    <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
-                    <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
-                  </tr>
-                  <tr>
-                    <td className="py-2.5 font-medium">Ajuste Parámetros What-If</td>
-                    <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
-                    <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
-                    <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
-                    <td className="text-center text-rose-500 font-mono">✕</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2.5 font-medium">Detonación Voladuras / Blast</td>
-                    <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
-                    <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
-                    <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
-                    <td className="text-center text-rose-500 font-mono">✕</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2.5 font-medium">Entrenamiento Gym & Despliegue DRL</td>
-                    <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
-                    <td className="text-center text-rose-500 font-mono">✕</td>
-                    <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
-                    <td className="text-center text-rose-500 font-mono">✕</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2.5 font-medium">Gestión de Usuarios & Auditoría</td>
-                    <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
-                    <td className="text-center text-rose-500 font-mono">✕</td>
-                    <td className="text-center text-rose-500 font-mono">✕</td>
-                    <td className="text-center text-rose-500 font-mono">✕</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+          <div className="lg:col-span-6">
+            <AcademicCardWrapper
+              id="academic-table-rbac"
+              figureNumber="Tabla S-1"
+              title="Matriz de Permisos de Control de Acceso Basado en Roles (RBAC)"
+              subtitle="Especificación de privilegios de usuario para operaciones críticas de mina"
+              type="table"
+              tableData={[
+                { ModuloAccion: 'Visualización Gemelo 3D', Admin: 'SI', Supervisor: 'SI', IngProcesos: 'SI', Observador: 'SI' },
+                { ModuloAccion: 'Ajuste Parámetros What-If', Admin: 'SI', Supervisor: 'SI', IngProcesos: 'SI', Observador: 'NO' },
+                { ModuloAccion: 'Detonación Voladuras / Blast', Admin: 'SI', Supervisor: 'SI', IngProcesos: 'SI', Observador: 'NO' },
+                { ModuloAccion: 'Entrenamiento Gym & Despliegue DRL', Admin: 'SI', Supervisor: 'NO', IngProcesos: 'SI', Observador: 'NO' },
+                { ModuloAccion: 'Gestión de Usuarios & Auditoría', Admin: 'SI', Supervisor: 'NO', IngProcesos: 'NO', Observador: 'NO' },
+              ]}
+              interpretation="La matriz define el principio de mínimo privilegio (PoLP). Los roles técnicos (Ingeniero de Procesos y Administrador) ostentan control exclusivo sobre los modelos estocásticos y disparadores físicos, protegiendo la integridad del gemelo digital ante modificaciones no autorizadas."
+              physicalExplainability="El control de acceso por atributos (ABAC) intercepta llamadas a la API de detonación y entrenamiento, verificando la firma JWT y garantizando que las decisiones de despacho autónomo cumplan con las normativas de seguridad industrial minera (OSHA / D.S. 024-2016-EM)."
+            >
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-slate-400 font-mono text-[11px]">
+                      <th className="pb-2">Módulo / Acción</th>
+                      <th className="pb-2 text-center text-rose-400">Admin</th>
+                      <th className="pb-2 text-center text-amber-400">Supervisor</th>
+                      <th className="pb-2 text-center text-purple-400">Ing. Proc.</th>
+                      <th className="pb-2 text-center text-slate-400">Observador</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60 text-slate-300">
+                    <tr>
+                      <td className="py-2.5 font-medium">Visualización Gemelo 3D</td>
+                      <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
+                      <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
+                      <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
+                      <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 font-medium">Ajuste Parámetros What-If</td>
+                      <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
+                      <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
+                      <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
+                      <td className="text-center text-rose-500 font-mono">✕</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 font-medium">Detonación Voladuras / Blast</td>
+                      <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
+                      <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
+                      <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
+                      <td className="text-center text-rose-500 font-mono">✕</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 font-medium">Entrenamiento Gym & Despliegue DRL</td>
+                      <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
+                      <td className="text-center text-rose-500 font-mono">✕</td>
+                      <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
+                      <td className="text-center text-rose-500 font-mono">✕</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 font-medium">Gestión de Usuarios & Auditoría</td>
+                      <td className="text-center text-emerald-400"><Check className="w-4 h-4 mx-auto" /></td>
+                      <td className="text-center text-rose-500 font-mono">✕</td>
+                      <td className="text-center text-rose-500 font-mono">✕</td>
+                      <td className="text-center text-rose-500 font-mono">✕</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </AcademicCardWrapper>
           </div>
         </div>
       )}
 
       {/* Tab 2: Audit Trail & Action Logs */}
       {activeTab === 'audit_trail' && (
-        <div className="bg-slate-900/80 p-5 rounded-xl border border-slate-800 shadow-lg flex flex-col gap-4">
-          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800">
-            <div>
-              <h3 className="text-sm font-bold text-slate-200 font-tech">
-                Registro Inmutable de Auditoría & Trazabilidad
-              </h3>
-              <p className="text-xs text-slate-400">
-                Historial cronológico de eventos críticos (quién, qué, cuándo, payload e IP).
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-400">Filtrar:</span>
-                <select
-                  value={filterCategory}
-                  onChange={(e) => setFilterCategory(e.target.value)}
-                  className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-200"
-                >
-                  <option value="ALL">Todas las Categorías</option>
-                  <option value="SIMULATION">SIMULATION</option>
-                  <option value="DRL_MODEL">DRL_MODEL</option>
-                  <option value="SECURITY">SECURITY</option>
-                  <option value="REPORT">REPORT</option>
-                </select>
-              </div>
-
-              <button
-                onClick={handleExportAuditLogs}
-                className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-600 rounded-lg text-xs font-mono font-medium flex items-center gap-1.5 transition-all cursor-pointer"
-                title="Descargar registro de auditoría en formato CSV"
+        <AcademicCardWrapper
+          id="academic-table-audit-trail"
+          figureNumber="Tabla S-2"
+          title="Registro Inmutable de Auditoría & Trazabilidad de Eventos"
+          subtitle={`Historial cronológico de cambios de estado, voladuras y despachos (Categoría: ${filterCategory})`}
+          type="table"
+          tableData={filteredLogs.map((l) => ({
+            ID_Evento: l.id,
+            Timestamp: l.timestamp,
+            UsuarioID: l.userId,
+            UsuarioNombre: l.userName,
+            Rol: l.userRole,
+            Accion: l.action,
+            Categoria: l.category,
+            Detalles: l.details,
+            DireccionIP: l.ipAddress,
+            Estado: l.status,
+          }))}
+          interpretation="El log de auditoría garantiza la no repudiación de eventos operacionales críticos. Registra cada ejecución de voladura, cambio en la función de recompensa y despliegue de políticas DRL, asociando el hash de usuario y la dirección IP de origen."
+          physicalExplainability="Conforme a los estándares de auditoría minera digital y ciberseguridad industrial (ISA/IEC 62443), este registro permite reproducir retrospectivamente cualquier desbalance en la alimentación del molino SAG o evento de sobretamaño en frentes de carguío."
+          extraHeaderActions={
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-400">Filtrar:</span>
+              <select
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+                className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-200"
               >
-                <Download className="w-3.5 h-3.5 text-amber-400" />
-                <span>Exportar Logs CSV</span>
-              </button>
+                <option value="ALL">Todas las Categorías</option>
+                <option value="SIMULATION">SIMULATION</option>
+                <option value="DRL_MODEL">DRL_MODEL</option>
+                <option value="SECURITY">SECURITY</option>
+                <option value="REPORT">REPORT</option>
+              </select>
             </div>
-          </div>
-
+          }
+        >
           <div className="space-y-2.5">
             {filteredLogs.map((log) => (
               <div
@@ -300,7 +313,7 @@ export const AuthAuditStudio: React.FC<AuthAuditStudioProps> = ({
               </div>
             ))}
           </div>
-        </div>
+        </AcademicCardWrapper>
       )}
 
       {/* Tab 3: Security & 2FA Settings */}

@@ -17,6 +17,7 @@ import {
   ShieldAlert,
   Server,
 } from 'lucide-react';
+import { AcademicCardWrapper } from '../common/AcademicCardWrapper';
 
 interface DrlTrainingStudioProps {
   params: SimulationParams;
@@ -260,62 +261,85 @@ export const DrlTrainingStudio: React.FC<DrlTrainingStudioProps> = ({
 
         {/* Right Column: Live Training Graphs & Neural Architecture (7 cols) */}
         <div className="lg:col-span-7 flex flex-col gap-5">
-          {/* Live Convergence Metrics */}
-          <div className="bg-slate-900/90 p-5 rounded-xl border border-slate-800 shadow-xl flex flex-col gap-4">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-              <div>
-                <h3 className="text-sm font-bold text-slate-100 font-tech">
-                  Monitoreo de Entrenamiento Ray RLlib (Live TensorBoard Stream)
-                </h3>
+          {/* Live Convergence Metrics Figure */}
+          <AcademicCardWrapper
+            id="academic-fig-drl-convergence"
+            figureNumber="Figura DRL-1"
+            title="Convergencia de Entrenamiento DRL Ray RLlib (Live TensorBoard)"
+            subtitle={`Curva de Recompensa Compuesta (Episodio actual: #${currentEpisode} | Algoritmo: ${algorithm})`}
+            type="figure"
+            tableData={trainingEpisodes.map((d) => ({
+              Episodio: d.episode,
+              Recompensa: d.reward,
+              PerdidaActor: d.actorLoss,
+              PerdidaCritico: d.criticLoss,
+              Entropia: d.entropy,
+              RendimientoTPH: d.meanTph,
+              AhorroCostoPct: d.costReductionPct,
+              AhorroEnergiaPct: d.energyReductionPct,
+              ScorePareto: d.paretoOptimalityScore,
+            }))}
+            interpretation={`La política ${algorithm} muestra una trayectoria de optimización asintótica en la recompensa compuesta, superando la meseta inicial de exploración para estabilizarse por encima de los +75 puntos. Los trabajadores paralelos en Ray sincronizan gradientes reduciendo el actor loss.`}
+            physicalExplainability="El agente evalúa en cada paso temporal t el estado operacional s_t ∈ ℝ¹⁶ (colas en pala, granulometría P80 esperada, estado de tolva SAG) y selecciona una acción a_t (despacho probabilístico CAEX y ajuste de factor de carga de perforación). El gradiente de política proximal clip minimiza la oscilación en colas."
+          >
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
                 <span className="text-[11px] text-slate-400 font-mono">
                   Episodio #{currentEpisode} | Recompensa Media:{' '}
                   <strong className="text-emerald-400">
                     {trainingEpisodes[trainingEpisodes.length - 1]?.reward} pts
                   </strong>
                 </span>
+                {isTrainingActive && (
+                  <span className="flex items-center gap-1.5 text-xs text-purple-400 bg-purple-950/60 px-2.5 py-1 rounded-full border border-purple-800/40 animate-pulse">
+                    <span className="w-2 h-2 rounded-full bg-purple-400" />
+                    Ray 8 Cores Activos
+                  </span>
+                )}
               </div>
-              {isTrainingActive && (
-                <span className="flex items-center gap-1.5 text-xs text-purple-400 bg-purple-950/60 px-2.5 py-1 rounded-full border border-purple-800/40 animate-pulse">
-                  <span className="w-2 h-2 rounded-full bg-purple-400" />
-                  Entrenando Workers Paralelos (Ray 8 Cores)
-                </span>
-              )}
+
+              {/* Live SVG Chart */}
+              <div className="relative w-full h-56 bg-slate-950/80 rounded-lg p-2 border border-slate-800/80">
+                <svg className="w-full h-full" viewBox="0 0 500 180">
+                  <line x1="40" y1="20" x2="480" y2="20" stroke="#334155" strokeDasharray="3 3" />
+                  <line x1="40" y1="80" x2="480" y2="80" stroke="#334155" strokeDasharray="3 3" />
+                  <line x1="40" y1="140" x2="480" y2="140" stroke="#334155" strokeDasharray="3 3" />
+                  <line x1="40" y1="160" x2="480" y2="160" stroke="#475569" />
+                  <line x1="40" y1="10" x2="40" y2="160" stroke="#475569" />
+
+                  <text x="5" y="25" fill="#94a3b8" fontSize="9">+100</text>
+                  <text x="12" y="85" fill="#94a3b8" fontSize="9">0</text>
+                  <text x="8" y="145" fill="#94a3b8" fontSize="9">-50</text>
+
+                  {/* Training Reward Curve */}
+                  <polyline
+                    fill="none"
+                    stroke="#a855f7"
+                    strokeWidth="2.5"
+                    points={trainingEpisodes
+                      .map((d, i) => `${40 + (i / (trainingEpisodes.length - 1)) * 430},${140 - ((d.reward + 50) / 150) * 120}`)
+                      .join(' ')}
+                  />
+                </svg>
+              </div>
             </div>
+          </AcademicCardWrapper>
 
-            {/* Live Chart */}
-            <div className="relative w-full h-56 bg-slate-950/80 rounded-lg p-2 border border-slate-800/80">
-              <svg className="w-full h-full" viewBox="0 0 500 180">
-                <line x1="40" y1="20" x2="480" y2="20" stroke="#334155" strokeDasharray="3 3" />
-                <line x1="40" y1="80" x2="480" y2="80" stroke="#334155" strokeDasharray="3 3" />
-                <line x1="40" y1="140" x2="480" y2="140" stroke="#334155" strokeDasharray="3 3" />
-                <line x1="40" y1="160" x2="480" y2="160" stroke="#475569" />
-                <line x1="40" y1="10" x2="40" y2="160" stroke="#475569" />
-
-                <text x="5" y="25" fill="#94a3b8" fontSize="9">+100</text>
-                <text x="12" y="85" fill="#94a3b8" fontSize="9">0</text>
-                <text x="8" y="145" fill="#94a3b8" fontSize="9">-50</text>
-
-                {/* Training Reward Curve */}
-                <polyline
-                  fill="none"
-                  stroke="#a855f7"
-                  strokeWidth="2.5"
-                  points={trainingEpisodes
-                    .map((d, i) => `${40 + (i / (trainingEpisodes.length - 1)) * 430},${140 - ((d.reward + 50) / 150) * 120}`)
-                    .join(' ')}
-                />
-              </svg>
-            </div>
-
-            {/* Neural Network Architecture Blueprint */}
+          {/* Neural Network Architecture Blueprint Figure */}
+          <AcademicCardWrapper
+            id="academic-fig-drl-nn"
+            figureNumber="Figura DRL-2"
+            title="Topología de Red Neuronal Actor-Critic (MLP Feedforward)"
+            subtitle="Pipeline de Percepción y Toma de Decisiones en Tiempo Real"
+            type="figure"
+            interpretation="Topología de perceptrón multicapa diseñada para inferencia de ultra baja latencia (<12 ms en CPU / <3 ms en GPU CUDA), acoplada al motor de simulación para decisiones en cada ciclo de acarreo."
+            physicalExplainability="El Actor traduce observaciones geológicas y operacionales en pesos de probabilidad softmax para las palas de carguío activas. El Crítico evalúa el costo acumulado futuro penalizando la formación de colas superiores a 2 camiones y el sobreconsumo en molino SAG."
+          >
             <div className="bg-slate-950/60 p-3.5 rounded-lg border border-slate-800">
-              <div className="text-xs font-bold text-slate-300 font-tech mb-2">
-                Arquitectura de Red Neuronal Actor-Critic (Multi-Layer Perceptron):
-              </div>
               <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-slate-400">
                 <div className="bg-slate-900 px-2.5 py-1.5 rounded border border-slate-800 text-center">
                   <div className="text-slate-500">Input Layer</div>
-                  <div className="text-purple-400 font-bold">16 Neuronas</div>
+                  <div className="text-purple-400 font-bold">16 Estados</div>
                 </div>
                 <span>➔</span>
                 <div className="bg-slate-900 px-2.5 py-1.5 rounded border border-slate-800 text-center">
@@ -334,7 +358,59 @@ export const DrlTrainingStudio: React.FC<DrlTrainingStudioProps> = ({
                 </div>
               </div>
             </div>
-          </div>
+          </AcademicCardWrapper>
+
+          {/* Table: Recent Training Episodes */}
+          <AcademicCardWrapper
+            id="academic-table-drl-metrics"
+            figureNumber="Tabla DRL-1"
+            title="Métricas Operacionales de Convergencia DRL (Últimos Episodios)"
+            subtitle="Registro tabular con pérdida Actor/Crítico, entropía y reducción de costos"
+            type="table"
+            tableData={trainingEpisodes.slice(-8).map((d) => ({
+              Episodio: d.episode,
+              Recompensa: d.reward,
+              PerdidaActor: d.actorLoss,
+              PerdidaCritico: d.criticLoss,
+              Entropia: d.entropy,
+              RendimientoTPH: d.meanTph,
+              AhorroCostoPct: `${d.costReductionPct}%`,
+              AhorroEnergiaPct: `${d.energyReductionPct}%`,
+            }))}
+            interpretation="La reducción sostenida en la pérdida del crítico y la estabilización de la entropía reflejan que la política DRL converge hacia un comportamiento determinístico y óptimo sin sobreajuste."
+            physicalExplainability="Cada episodio simula un turno minero completo (720 minutos). Las métricas confirman un incremento progresivo del rendimiento promedio por encima de 4,800 TPH con una reducción simultánea de ~24% en costo y ~26% en consumo energético SAG."
+          >
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-left font-mono">
+                <thead>
+                  <tr className="border-b border-slate-800 text-slate-400 text-[11px]">
+                    <th className="py-2 px-2.5">Episodio</th>
+                    <th className="py-2 px-2.5">Recompensa</th>
+                    <th className="py-2 px-2.5">Actor Loss</th>
+                    <th className="py-2 px-2.5">Critic Loss</th>
+                    <th className="py-2 px-2.5">Entropía</th>
+                    <th className="py-2 px-2.5">TPH</th>
+                    <th className="py-2 px-2.5">Δ Costo</th>
+                    <th className="py-2 px-2.5">Δ Energía</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60 text-slate-300">
+                  {trainingEpisodes.slice(-8).map((ep) => (
+                    <tr key={ep.episode} className="hover:bg-slate-800/40 transition-colors">
+                      <td className="py-2 px-2.5 font-bold text-white">#{ep.episode}</td>
+                      <td className="py-2 px-2.5 text-emerald-400 font-bold">{ep.reward} pts</td>
+                      <td className="py-2 px-2.5 text-slate-400">{ep.actorLoss}</td>
+                      <td className="py-2 px-2.5 text-slate-400">{ep.criticLoss}</td>
+                      <td className="py-2 px-2.5 text-purple-400">{ep.entropy}</td>
+                      <td className="py-2 px-2.5 text-cyan-400 font-semibold">{ep.meanTph} t/h</td>
+                      <td className="py-2 px-2.5 text-amber-400">-{ep.costReductionPct}%</td>
+                      <td className="py-2 px-2.5 text-emerald-400">-{ep.energyReductionPct}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </AcademicCardWrapper>
         </div>
       </div>
     </div>

@@ -16,9 +16,9 @@ import {
   Layers,
   ArrowRight,
   ShieldAlert,
-  Info,
   Server,
 } from 'lucide-react';
+import { AcademicCardWrapper } from '../common/AcademicCardWrapper';
 
 interface WhatIfStudioProps {
   currentParams: SimulationParams;
@@ -426,15 +426,46 @@ export const WhatIfStudio: React.FC<WhatIfStudioProps> = ({
 
         {/* Right Column: Comparative Delta Scorecard & Rosin-Rammler Curve (5 cols) */}
         <div className="lg:col-span-5 flex flex-col gap-5">
-          {/* Comparative Delta Scorecard */}
-          <div className="bg-[#0f1115] p-5 rounded border border-[#1f2937] shadow-xl flex flex-col gap-4">
-            <div className="flex items-center justify-between pb-2 border-b border-[#1f2937]">
-              <div className="flex items-center gap-2 text-sm font-bold text-white font-tech uppercase tracking-wider">
-                <Sparkles className="w-4 h-4 text-[#00f2ff]" />
-                <span>Scorecard Prospectivo: What-If vs Actual</span>
-              </div>
-            </div>
-
+          {/* Comparative Delta Scorecard Table */}
+          <AcademicCardWrapper
+            id="academic-table-whatif-scorecard"
+            figureNumber="Tabla W-1"
+            title="Scorecard Comparativo What-If vs Actual"
+            subtitle="Proyección predictiva de TPH, Costo, Energía SAG y Granulometría P80"
+            type="table"
+            tableData={[
+              {
+                Metrica: 'Productividad de Transporte',
+                ValorActual: `${kpis.tph} t/h`,
+                ValorWhatIf: `${prospectiveTph} t/h`,
+                Delta: `${deltaTph >= 0 ? '+' : ''}${deltaTph} t/h`,
+                Impacto: deltaTph >= 0 ? 'FAVORABLE' : 'DESFAVORABLE',
+              },
+              {
+                Metrica: 'Costo Unitario Mina-Planta',
+                ValorActual: `$${(kpis?.costPerTonne ?? 4.85).toFixed(2)}/t`,
+                ValorWhatIf: `$${(prospectiveCost ?? 4.85).toFixed(2)}/t`,
+                Delta: `${(deltaCost ?? 0) <= 0 ? '' : '+'}${(deltaCost ?? 0).toFixed(2)} $/t`,
+                Impacto: (deltaCost ?? 0) <= 0 ? 'FAVORABLE' : 'DESFAVORABLE',
+              },
+              {
+                Metrica: 'Energía Específica Molienda SAG',
+                ValorActual: `${(kpis?.energyKwhPerTonne ?? 9.35).toFixed(2)} kWh/t`,
+                ValorWhatIf: `${(prospectiveEnergy ?? 9.35).toFixed(2)} kWh/t`,
+                Delta: `${(deltaEnergy ?? 0) <= 0 ? '' : '+'}${(deltaEnergy ?? 0).toFixed(2)} kWh/t`,
+                Impacto: (deltaEnergy ?? 0) <= 0 ? 'FAVORABLE' : 'DESFAVORABLE',
+              },
+              {
+                Metrica: 'Tamaño de Fragmentación P80',
+                ValorActual: `${(kpis?.currentP80Mm ?? 154).toFixed(1)} mm`,
+                ValorWhatIf: `${(draftKuzRam?.p80Mm ?? 154).toFixed(1)} mm`,
+                Delta: `${(deltaP80 ?? 0) >= 0 ? '+' : ''}${(deltaP80 ?? 0).toFixed(1)} mm`,
+                Impacto: (draftKuzRam?.p80Mm ?? 154) <= 165 ? 'OPTIMO SAG' : 'GRUESO',
+              },
+            ]}
+            interpretation="El análisis prospectivo de sensibilidad What-If cuantifica las ganancias netas de costo y rendimiento global Mine-to-Mill, evaluando simultáneamente el trade-off entre mayor gasto en explosivos y ahorro masivo en conminución."
+            physicalExplainability="El acoplamiento se basa en la ecuación empírica extendida de conminución Bond/Morrell: cada reducción de 10 mm en el P80 alimentado al molino SAG libera entre 0.35 y 0.52 kWh/t de capacidad electromecánica, elevando el throughput de la concentradora."
+          >
             <div className="flex flex-col gap-3">
               {/* TPH Delta */}
               <div className="bg-[#15181e] p-3 rounded border border-[#1f2937] flex items-center justify-between">
@@ -458,15 +489,15 @@ export const WhatIfStudio: React.FC<WhatIfStudioProps> = ({
                 <div>
                   <div className="text-[10px] uppercase font-bold text-[#6b7280]">Costo Unitario ($/t)</div>
                   <div className="text-lg font-bold text-white font-mono">
-                    ${prospectiveCost.toFixed(2)} <span className="text-xs text-[#6b7280] font-normal">/ t</span>
+                    ${(prospectiveCost ?? 4.85).toFixed(2)} <span className="text-xs text-[#6b7280] font-normal">/ t</span>
                   </div>
                 </div>
                 <div
                   className={`text-xs font-bold font-mono px-2.5 py-1 rounded flex items-center gap-1 ${
-                    deltaCost <= 0 ? 'bg-[#10b981]/20 text-[#10b981] border border-[#10b981]/40' : 'bg-[#ef4444]/20 text-[#ef4444] border border-[#ef4444]/40'
+                    (deltaCost ?? 0) <= 0 ? 'bg-[#10b981]/20 text-[#10b981] border border-[#10b981]/40' : 'bg-[#ef4444]/20 text-[#ef4444] border border-[#ef4444]/40'
                   }`}
                 >
-                  {deltaCost <= 0 ? `${deltaCost.toFixed(2)}` : `+${deltaCost.toFixed(2)}`} $/t
+                  {(deltaCost ?? 0) <= 0 ? `${(deltaCost ?? 0).toFixed(2)}` : `+${(deltaCost ?? 0).toFixed(2)}`} $/t
                 </div>
               </div>
 
@@ -475,15 +506,15 @@ export const WhatIfStudio: React.FC<WhatIfStudioProps> = ({
                 <div>
                   <div className="text-[10px] uppercase font-bold text-[#6b7280]">Energía Específica (kWh/t)</div>
                   <div className="text-lg font-bold text-white font-mono">
-                    {prospectiveEnergy.toFixed(2)} <span className="text-xs text-[#6b7280] font-normal">kWh/t</span>
+                    {(prospectiveEnergy ?? 9.35).toFixed(2)} <span className="text-xs text-[#6b7280] font-normal">kWh/t</span>
                   </div>
                 </div>
                 <div
                   className={`text-xs font-bold font-mono px-2.5 py-1 rounded flex items-center gap-1 ${
-                    deltaEnergy <= 0 ? 'bg-[#10b981]/20 text-[#10b981] border border-[#10b981]/40' : 'bg-[#ef4444]/20 text-[#ef4444] border border-[#ef4444]/40'
+                    (deltaEnergy ?? 0) <= 0 ? 'bg-[#10b981]/20 text-[#10b981] border border-[#10b981]/40' : 'bg-[#ef4444]/20 text-[#ef4444] border border-[#ef4444]/40'
                   }`}
                 >
-                  {deltaEnergy <= 0 ? `${deltaEnergy.toFixed(2)}` : `+${deltaEnergy.toFixed(2)}`} kWh/t
+                  {(deltaEnergy ?? 0) <= 0 ? `${(deltaEnergy ?? 0).toFixed(2)}` : `+${(deltaEnergy ?? 0).toFixed(2)}`} kWh/t
                 </div>
               </div>
 
@@ -492,103 +523,113 @@ export const WhatIfStudio: React.FC<WhatIfStudioProps> = ({
                 <div>
                   <div className="text-[10px] uppercase font-bold text-[#6b7280]">Kuz-Ram P80 Fragmentation</div>
                   <div className="text-lg font-bold text-white font-mono">
-                    {draftKuzRam.p80Mm} <span className="text-xs text-[#6b7280] font-normal">mm</span>
+                    {draftKuzRam?.p80Mm ?? 154} <span className="text-xs text-[#6b7280] font-normal">mm</span>
                   </div>
                 </div>
                 <div className="text-xs font-bold font-mono px-2.5 py-1 rounded bg-[#0a0b0e] text-[#00f2ff] border border-[#1f2937]">
-                  {deltaP80 >= 0 ? `+${deltaP80.toFixed(1)}` : deltaP80.toFixed(1)} mm
+                  {(deltaP80 ?? 0) >= 0 ? `+${(deltaP80 ?? 0).toFixed(1)}` : (deltaP80 ?? 0).toFixed(1)} mm
+                </div>
+              </div>
+
+              {/* Mine-to-Mill Coupling Impact */}
+              <div className="bg-[#15181e] p-3.5 rounded border border-[#00f2ff]/30 shadow-[0_0_15px_rgba(0,242,255,0.06)]">
+                <div className="text-xs font-bold text-[#00f2ff] font-tech uppercase tracking-wider flex items-center gap-1.5">
+                  <Zap className="w-3.5 h-3.5 text-[#00f2ff]" />
+                  <span>Impacto Mine-to-Mill en Molienda SAG:</span>
+                </div>
+                <p className="text-xs text-[#d1d5db] mt-1">
+                  La fragmentación simulada reduce el consumo en SAG a{' '}
+                  <strong className="text-[#00f2ff]">{draftKuzRam.estimatedSagMillKwhPerTonne} kWh/t</strong>, generando un{' '}
+                  <strong className="text-[#10b981]">+{draftKuzRam.energySavingPercentage}% de ahorro energético</strong> vs línea base.
+                </p>
+              </div>
+            </div>
+          </AcademicCardWrapper>
+
+          {/* Rosin-Rammler Fragmentation Curve Visualization Figure */}
+          <AcademicCardWrapper
+            id="academic-fig-rosin-rammler"
+            figureNumber="Figura W-1"
+            title="Curva Granulométrica Rosin-Rammler (Distribución de Fragmentación)"
+            subtitle={`P50=${draftKuzRam.p50Mm}mm | P80=${draftKuzRam.p80Mm}mm | Factor de Carga q=${draftBlast.powderFactorKgM3} kg/m³`}
+            type="figure"
+            tableData={fragCurve.map((pt) => ({
+              TamizMm: pt.sizeMm,
+              PorcentajePasante: pt.percentPassing,
+              RetenidoAcumuladoPct: (100 - (pt.percentPassing ?? 0)).toFixed(2),
+            }))}
+            interpretation="La curva sigmoidal de Rosin-Rammler grafica el porcentaje acumulado pasante frente a la abertura de tamiz. El punto P80 señala el corte granulométrico donde el 80% de la masa pasa el tamiz, garantizando excelente cargabilidad de cuchara y fluidez en tolva."
+            physicalExplainability="Basada en la distribución bivariada de Cunningham R(x) = 1 - exp[-(x/x_c)^n]. El índice de uniformidad n determina la pendiente de la curva: valores altos (n > 1.25) minimizan simultáneamente finos indeseados (<25 mm) y bolonería (>600 mm)."
+          >
+            <div className="flex flex-col gap-3">
+              {/* Custom SVG Rosin-Rammler Curve Chart */}
+              <div className="relative w-full h-44 bg-[#0a0b0e] rounded p-2 border border-[#1f2937]">
+                <svg className="w-full h-full" viewBox="0 0 400 150">
+                  {/* Grid Lines */}
+                  <line x1="40" y1="20" x2="380" y2="20" stroke="#1f2937" strokeDasharray="3 3" />
+                  <line x1="40" y1="50" x2="380" y2="50" stroke="#1f2937" strokeDasharray="3 3" />
+                  <line x1="40" y1="80" x2="380" y2="80" stroke="#1f2937" strokeDasharray="3 3" />
+                  <line x1="40" y1="110" x2="380" y2="110" stroke="#1f2937" strokeDasharray="3 3" />
+                  <line x1="40" y1="130" x2="380" y2="130" stroke="#374151" />
+                  <line x1="40" y1="10" x2="40" y2="130" stroke="#374151" />
+
+                  {/* Axis Labels */}
+                  <text x="10" y="25" fill="#6b7280" fontSize="9">100%</text>
+                  <text x="15" y="55" fill="#6b7280" fontSize="9">80%</text>
+                  <text x="15" y="85" fill="#6b7280" fontSize="9">50%</text>
+                  <text x="15" y="115" fill="#6b7280" fontSize="9">20%</text>
+                  <text x="40" y="145" fill="#6b7280" fontSize="9">0 mm</text>
+                  <text x="180" y="145" fill="#6b7280" fontSize="9">300 mm</text>
+                  <text x="350" y="145" fill="#6b7280" fontSize="9">600 mm</text>
+
+                  {/* 80% and 50% Threshold Guides */}
+                  <line x1="40" y1="50" x2="380" y2="50" stroke="#00f2ff" strokeWidth="1" strokeDasharray="2 2" opacity="0.6" />
+                  <line x1="40" y1="80" x2="380" y2="80" stroke="#10b981" strokeWidth="1" strokeDasharray="2 2" opacity="0.6" />
+
+                  {/* Plot Path */}
+                  {(() => {
+                    const points = fragCurve.map((pt) => {
+                      const x = 40 + (Math.min(pt.sizeMm, 600) / 600) * 340;
+                      const y = 130 - (pt.percentPassing / 100) * 110;
+                      return `${x},${y}`;
+                    });
+                    return (
+                      <>
+                        <polyline
+                          fill="none"
+                          stroke="#00f2ff"
+                          strokeWidth="2.5"
+                          points={points.join(' ')}
+                        />
+                        {/* P80 Point Marker */}
+                        <circle
+                          cx={40 + (Math.min(draftKuzRam.p80Mm, 600) / 600) * 340}
+                          cy={50}
+                          r="4"
+                          fill="#00f2ff"
+                        />
+                      </>
+                    );
+                  })()}
+                </svg>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                <div className="bg-[#15181e] p-1.5 rounded border border-[#1f2937]">
+                  <div className="text-[10px] uppercase font-bold text-[#6b7280]">Finos (&lt;25mm)</div>
+                  <div className="font-mono font-bold text-white">{draftKuzRam.finesPercentUnder25mm}%</div>
+                </div>
+                <div className="bg-[#15181e] p-1.5 rounded border border-[#1f2937]">
+                  <div className="text-[10px] uppercase font-bold text-[#6b7280]">Bolones (&gt;600mm)</div>
+                  <div className="font-mono font-bold text-[#ef4444]">{draftKuzRam.bouldersPercentOver600mm}%</div>
+                </div>
+                <div className="bg-[#15181e] p-1.5 rounded border border-[#1f2937]">
+                  <div className="text-[10px] uppercase font-bold text-[#6b7280]">Diggability Score</div>
+                  <div className="font-mono font-bold text-[#10b981]">{draftKuzRam.optimumDiggabilityScore}/100</div>
                 </div>
               </div>
             </div>
-
-            {/* Mine-to-Mill Coupling Impact */}
-            <div className="bg-[#15181e] p-3.5 rounded border border-[#00f2ff]/30 shadow-[0_0_15px_rgba(0,242,255,0.06)]">
-              <div className="text-xs font-bold text-[#00f2ff] font-tech uppercase tracking-wider flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-[#00f2ff]" />
-                <span>Impacto Mine-to-Mill en Molienda SAG:</span>
-              </div>
-              <p className="text-xs text-[#d1d5db] mt-1">
-                La fragmentación simulada reduce el consumo en SAG a{' '}
-                <strong className="text-[#00f2ff]">{draftKuzRam.estimatedSagMillKwhPerTonne} kWh/t</strong>, generando un{' '}
-                <strong className="text-[#10b981]">+{draftKuzRam.energySavingPercentage}% de ahorro energético</strong> vs línea base.
-              </p>
-            </div>
-          </div>
-
-          {/* Rosin-Rammler Fragmentation Curve Visualization */}
-          <div className="bg-[#0f1115] p-5 rounded border border-[#1f2937] shadow-xl flex flex-col gap-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#1f2937]">
-              <div className="text-sm font-bold text-white font-tech uppercase tracking-wider">Curva Granulométrica Rosin-Rammler</div>
-              <span className="text-[11px] font-mono text-[#6b7280]">P50={draftKuzRam.p50Mm}mm | P80={draftKuzRam.p80Mm}mm</span>
-            </div>
-
-            {/* Custom SVG Rosin-Rammler Curve Chart */}
-            <div className="relative w-full h-44 bg-[#0a0b0e] rounded p-2 border border-[#1f2937]">
-              <svg className="w-full h-full" viewBox="0 0 400 150">
-                {/* Grid Lines */}
-                <line x1="40" y1="20" x2="380" y2="20" stroke="#1f2937" strokeDasharray="3 3" />
-                <line x1="40" y1="50" x2="380" y2="50" stroke="#1f2937" strokeDasharray="3 3" />
-                <line x1="40" y1="80" x2="380" y2="80" stroke="#1f2937" strokeDasharray="3 3" />
-                <line x1="40" y1="110" x2="380" y2="110" stroke="#1f2937" strokeDasharray="3 3" />
-                <line x1="40" y1="130" x2="380" y2="130" stroke="#374151" />
-                <line x1="40" y1="10" x2="40" y2="130" stroke="#374151" />
-
-                {/* Axis Labels */}
-                <text x="10" y="25" fill="#6b7280" fontSize="9">100%</text>
-                <text x="15" y="55" fill="#6b7280" fontSize="9">80%</text>
-                <text x="15" y="85" fill="#6b7280" fontSize="9">50%</text>
-                <text x="15" y="115" fill="#6b7280" fontSize="9">20%</text>
-                <text x="40" y="145" fill="#6b7280" fontSize="9">0 mm</text>
-                <text x="180" y="145" fill="#6b7280" fontSize="9">300 mm</text>
-                <text x="350" y="145" fill="#6b7280" fontSize="9">600 mm</text>
-
-                {/* 80% and 50% Threshold Guides */}
-                <line x1="40" y1="50" x2="380" y2="50" stroke="#00f2ff" strokeWidth="1" strokeDasharray="2 2" opacity="0.6" />
-                <line x1="40" y1="80" x2="380" y2="80" stroke="#10b981" strokeWidth="1" strokeDasharray="2 2" opacity="0.6" />
-
-                {/* Plot Path */}
-                {(() => {
-                  const points = fragCurve.map((pt) => {
-                    const x = 40 + (Math.min(pt.sizeMm, 600) / 600) * 340;
-                    const y = 130 - (pt.percentPassing / 100) * 110;
-                    return `${x},${y}`;
-                  });
-                  return (
-                    <>
-                      <polyline
-                        fill="none"
-                        stroke="#00f2ff"
-                        strokeWidth="2.5"
-                        points={points.join(' ')}
-                      />
-                      {/* P80 Point Marker */}
-                      <circle
-                        cx={40 + (Math.min(draftKuzRam.p80Mm, 600) / 600) * 340}
-                        cy={50}
-                        r="4"
-                        fill="#00f2ff"
-                      />
-                    </>
-                  );
-                })()}
-              </svg>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="bg-[#15181e] p-1.5 rounded border border-[#1f2937]">
-                <div className="text-[10px] uppercase font-bold text-[#6b7280]">Finos (&lt;25mm)</div>
-                <div className="font-mono font-bold text-white">{draftKuzRam.finesPercentUnder25mm}%</div>
-              </div>
-              <div className="bg-[#15181e] p-1.5 rounded border border-[#1f2937]">
-                <div className="text-[10px] uppercase font-bold text-[#6b7280]">Bolones (&gt;600mm)</div>
-                <div className="font-mono font-bold text-[#ef4444]">{draftKuzRam.bouldersPercentOver600mm}%</div>
-              </div>
-              <div className="bg-[#15181e] p-1.5 rounded border border-[#1f2937]">
-                <div className="text-[10px] uppercase font-bold text-[#6b7280]">Diggability Score</div>
-                <div className="font-mono font-bold text-[#10b981]">{draftKuzRam.optimumDiggabilityScore}/100</div>
-              </div>
-            </div>
-          </div>
+          </AcademicCardWrapper>
         </div>
       </div>
     </div>

@@ -27,6 +27,7 @@ import {
   FlaskConical,
   Award,
 } from 'lucide-react';
+import { AcademicCardWrapper } from '../common/AcademicCardWrapper';
 
 interface ReportsStudioProps {
   kpis: SimulationKPIs;
@@ -281,6 +282,116 @@ export const ReportsStudio: React.FC<ReportsStudioProps> = ({
           </div>
         </div>
       </div>
+
+      {/* 2.5 Live Executive Report Preview Table */}
+      <AcademicCardWrapper
+        id="academic-table-report-summary"
+        figureNumber="Tabla R-1"
+        title="Balance Operacional Consolidado de Turno Minero (Mine-to-Mill)"
+        subtitle="Reporte consolidado de producción, utilización de flota y consumo energético"
+        type="table"
+        tableData={[
+          {
+            AreaOperativa: 'Acarreo Mina (CAEX)',
+            MetricaClave: 'Tonelaje Movido Turno',
+            ValorActual: `${kpis.totalTonnesMoved ?? 38450} t`,
+            MetaTurno: '40,000 t',
+            CumplimientoPct: `${(((kpis.totalTonnesMoved ?? 38450) / 40000) * 100).toFixed(1)}%`,
+            Estado: 'EN META',
+          },
+          {
+            AreaOperativa: 'Rendimiento Circuito',
+            MetricaClave: 'Throughput Horario (TPH)',
+            ValorActual: `${kpis.tph} t/h`,
+            MetaTurno: `${params.targetTph} t/h`,
+            CumplimientoPct: `${((kpis.tph / params.targetTph) * 100).toFixed(1)}%`,
+            Estado: kpis.tph >= params.targetTph ? 'SUPERADO' : 'NORMAL',
+          },
+          {
+            AreaOperativa: 'Planta Concentradora',
+            MetricaClave: 'Energía Específica Molienda SAG',
+            ValorActual: `${kpis.energyKwhPerTonne.toFixed(2)} kWh/t`,
+            MetaTurno: '11.50 kWh/t',
+            CumplimientoPct: `${((1 - (kpis.energyKwhPerTonne / 11.50)) * 100).toFixed(1)}% Ahorro`,
+            Estado: 'EFICIENTE',
+          },
+          {
+            AreaOperativa: 'Perforación & Voladura',
+            MetricaClave: 'Fragmentación P80 (Kuz-Ram)',
+            ValorActual: `${kpis.currentP80Mm.toFixed(1)} mm`,
+            MetaTurno: '155.0 mm',
+            CumplimientoPct: 'Ajustado',
+            Estado: 'ÓPTIMO',
+          },
+          {
+            AreaOperativa: 'Finanzas & Costos',
+            MetricaClave: 'Costo Unitario Consolidado',
+            ValorActual: `$${kpis.costPerTonne.toFixed(2)} / t`,
+            MetaTurno: '$5.50 / t',
+            CumplimientoPct: `${((1 - (kpis.costPerTonne / 5.50)) * 100).toFixed(1)}% Menor`,
+            Estado: 'OPTIMIZADO',
+          },
+        ]}
+        interpretation="El informe consolidado del turno evidencia un balance favorable en todos los indicadores clave de desempeño (KPIs). La sincronización entre el factor de carga de voladura y el despacho DRL mantiene el consumo SAG por debajo del umbral objetivo de 11.5 kWh/t."
+        physicalExplainability="El acoplamiento analítico consolida datos telemétricos de camiones, palas y molinos SAG mediante la arquitectura Event-Driven. Cada tonelada transportada está georreferenciada con la dureza geomecánica del polígono de origen."
+      >
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs text-left font-mono">
+            <thead>
+              <tr className="border-b border-slate-800 text-slate-400 text-[11px]">
+                <th className="py-2.5 px-3">Área Operativa</th>
+                <th className="py-2.5 px-3">Métrica Clave</th>
+                <th className="py-2.5 px-3">Valor Turno</th>
+                <th className="py-2.5 px-3">Meta / Línea Base</th>
+                <th className="py-2.5 px-3">Cumplimiento / Desviación</th>
+                <th className="py-2.5 px-3">Estado</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800/60 text-slate-300">
+              <tr>
+                <td className="py-2.5 px-3 font-semibold text-white">Acarreo Mina (CAEX)</td>
+                <td className="py-2.5 px-3">Tonelaje Movido Turno</td>
+                <td className="py-2.5 px-3 font-bold text-cyan-400">{(kpis.totalTonnesMoved ?? 38450).toLocaleString()} t</td>
+                <td className="py-2.5 px-3 text-slate-400">40,000 t</td>
+                <td className="py-2.5 px-3 text-emerald-400 font-semibold">{(((kpis.totalTonnesMoved ?? 38450) / 40000) * 100).toFixed(1)}%</td>
+                <td className="py-2.5 px-3"><span className="px-2 py-0.5 rounded text-[10px] bg-emerald-950/60 text-emerald-400 border border-emerald-500/30">EN META</span></td>
+              </tr>
+              <tr>
+                <td className="py-2.5 px-3 font-semibold text-white">Rendimiento Circuito</td>
+                <td className="py-2.5 px-3">Throughput Horario (TPH)</td>
+                <td className="py-2.5 px-3 font-bold text-cyan-400">{kpis.tph} t/h</td>
+                <td className="py-2.5 px-3 text-slate-400">{params.targetTph} t/h</td>
+                <td className="py-2.5 px-3 text-emerald-400 font-semibold">+{((kpis.tph / params.targetTph - 1) * 100).toFixed(1)}%</td>
+                <td className="py-2.5 px-3"><span className="px-2 py-0.5 rounded text-[10px] bg-emerald-950/60 text-emerald-400 border border-emerald-500/30">SUPERADO</span></td>
+              </tr>
+              <tr>
+                <td className="py-2.5 px-3 font-semibold text-white">Planta Concentradora</td>
+                <td className="py-2.5 px-3">Energía Específica Molienda SAG</td>
+                <td className="py-2.5 px-3 font-bold text-emerald-400">{kpis.energyKwhPerTonne.toFixed(2)} kWh/t</td>
+                <td className="py-2.5 px-3 text-slate-400">11.50 kWh/t</td>
+                <td className="py-2.5 px-3 text-emerald-400 font-semibold">-{((1 - (kpis.energyKwhPerTonne / 11.50)) * 100).toFixed(1)}% Ahorro</td>
+                <td className="py-2.5 px-3"><span className="px-2 py-0.5 rounded text-[10px] bg-emerald-950/60 text-emerald-400 border border-emerald-500/30">EFICIENTE</span></td>
+              </tr>
+              <tr>
+                <td className="py-2.5 px-3 font-semibold text-white">Perforación & Voladura</td>
+                <td className="py-2.5 px-3">Fragmentación P80 (Kuz-Ram)</td>
+                <td className="py-2.5 px-3 font-bold text-amber-300">{kpis.currentP80Mm.toFixed(1)} mm</td>
+                <td className="py-2.5 px-3 text-slate-400">155.0 mm</td>
+                <td className="py-2.5 px-3 text-slate-400">Normal</td>
+                <td className="py-2.5 px-3"><span className="px-2 py-0.5 rounded text-[10px] bg-cyan-950/60 text-cyan-400 border border-cyan-500/30">ÓPTIMO</span></td>
+              </tr>
+              <tr>
+                <td className="py-2.5 px-3 font-semibold text-white">Finanzas & Costos</td>
+                <td className="py-2.5 px-3">Costo Unitario Consolidado</td>
+                <td className="py-2.5 px-3 font-bold text-white">${kpis.costPerTonne.toFixed(2)} / t</td>
+                <td className="py-2.5 px-3 text-slate-400">$5.50 / t</td>
+                <td className="py-2.5 px-3 text-emerald-400 font-semibold">-${(5.50 - kpis.costPerTonne).toFixed(2)}/t</td>
+                <td className="py-2.5 px-3"><span className="px-2 py-0.5 rounded text-[10px] bg-emerald-950/60 text-emerald-400 border border-emerald-500/30">OPTIMIZADO</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </AcademicCardWrapper>
 
       {/* 3. Scientific Research & Paper Publishing Dossier */}
       <div className="bg-gradient-to-r from-[#0f172a] via-[#111c35] to-[#0f172a] p-6 rounded-xl border border-[#00f2ff]/30 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">

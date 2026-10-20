@@ -86,8 +86,13 @@ export interface HaulTruck {
   totalFuelConsumed: number;
   waitTimeSeconds: number;
   tireTemperatureC: number;
-  payloadType: 'ore_high' | 'ore_low' | 'waste';
   cyclesCompleted: number;
+  payloadType?: 'ore_high' | 'ore_low' | 'waste';
+  // Aliases / Compatibility fields
+  progressAlongRoute?: number;
+  fuelBurnRateLph?: number;
+  totalRoundsCompleted?: number;
+  tireTempCelsius?: number;
 }
 
 export interface BlastZone {
