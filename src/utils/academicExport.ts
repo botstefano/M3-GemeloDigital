@@ -17,21 +17,43 @@ export async function exportElementToHighDpiPng(
   }
 
   try {
-    // pixelRatio: 5-6 yields true 600 DPI equivalent print resolution for academic journals (Elsevier, IEEE, SME)
-    const dataUrl = await htmlToImage.toPng(node, {
-      quality: 1.0,
-      pixelRatio: 5,
-      backgroundColor: '#0a0b0e',
-      style: {
-        borderRadius: '0px',
-      },
-      filter: (child: HTMLElement) => {
-        if (child.classList && (child.classList.contains('no-export') || child.classList.contains('no-print'))) {
-          return false;
-        }
-        return true;
-      },
-    });
+    // skipFonts: true and fontEmbedCSS: '' prevents SecurityError when reading remote CSS stylesheets (e.g. Google Fonts)
+    // pixelRatio: 4 produces publication-ready ultra-high resolution (3000-5000px wide, ~600 DPI equivalent)
+    let dataUrl: string;
+    try {
+      dataUrl = await htmlToImage.toPng(node, {
+        quality: 1.0,
+        pixelRatio: 4,
+        backgroundColor: '#0a0b0e',
+        skipFonts: true,
+        fontEmbedCSS: '',
+        style: {
+          borderRadius: '0px',
+        },
+        filter: (child: HTMLElement) => {
+          if (child.classList && (child.classList.contains('no-export') || child.classList.contains('no-print'))) {
+            return false;
+          }
+          return true;
+        },
+      });
+    } catch (innerError) {
+      console.warn('Initial high-DPI export attempt encountered an issue, retrying with conservative ratio:', innerError);
+      // Fallback with pixelRatio: 2
+      dataUrl = await htmlToImage.toPng(node, {
+        quality: 0.98,
+        pixelRatio: 2,
+        backgroundColor: '#0a0b0e',
+        skipFonts: true,
+        fontEmbedCSS: '',
+        filter: (child: HTMLElement) => {
+          if (child.classList && (child.classList.contains('no-export') || child.classList.contains('no-print'))) {
+            return false;
+          }
+          return true;
+        },
+      });
+    }
 
     const link = document.createElement('a');
     link.download = `${filename.replace(/\.png$/i, '')}_600DPI.png`;

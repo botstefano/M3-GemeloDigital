@@ -208,6 +208,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             title="Frente de Pareto Multi-Objetivo (Productividad TPH vs Costo Unitario $/t)"
             subtitle="Espacio de soluciones no dominadas evaluado mediante PPO-M-3, SAC-Multi, NSGA-II y Baseline FIFO"
             type="figure"
+            exportTargetId="academic-pareto-scatter-plane"
             tableData={DEFAULT_PARETO_SOLUTIONS.map((s) => ({
               ID: s.id,
               Politica: s.policyName,
@@ -226,8 +227,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             physicalExplainability="El acoplamiento estocástico de colas M/G/1 en palas y recepción de tolva de chancado produce interferencias cuando la asignación es estática. El agente PPO ajusta dinámicamente las probabilidades de despacho ponderando la fragmentación geomecánica de roca proveniente del banco detonado (Kuz-Ram), manteniendo la tasa de arribo en equilibrio con la tasa de conminución del molino SAG."
           >
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              {/* Pareto Scatter 2D Plane */}
-              <div className="lg:col-span-8 bg-[#15181e] p-4 rounded border border-[#1f2937]">
+              {/* Pareto Scatter 2D Plane - Clean Figure Target */}
+              <div id="academic-pareto-scatter-plane" className="lg:col-span-8 bg-[#15181e] p-4 rounded border border-[#1f2937]">
                 <div className="flex items-center justify-between pb-2">
                   <h4 className="text-xs font-bold text-white uppercase font-tech tracking-wider">
                     Dispersión 2D: Productividad (TPH) vs Costo ($/t)
@@ -307,8 +308,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                 </div>
               </div>
 
-              {/* Selected Solution Inspector Card */}
-              <div className="lg:col-span-4 bg-[#15181e] p-4 rounded border border-[#00f2ff]/30 flex flex-col gap-3 shadow-[0_0_20px_rgba(0,242,255,0.08)]">
+              {/* Selected Solution Inspector Card (Interactive text panel excluded from figure export) */}
+              <div className="lg:col-span-4 bg-[#15181e] p-4 rounded border border-[#00f2ff]/30 flex flex-col gap-3 shadow-[0_0_20px_rgba(0,242,255,0.08)] no-export">
                 <div className="flex items-center justify-between pb-2 border-b border-[#1f2937]">
                   <div>
                     <h4 className="text-sm font-bold text-white font-tech">{selectedPareto.policyName}</h4>

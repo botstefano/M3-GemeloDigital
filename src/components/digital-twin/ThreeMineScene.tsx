@@ -87,7 +87,11 @@ export const ThreeMineScene: React.FC<ThreeMineSceneProps> = ({
     cameraRef.current = camera;
 
     // 3. Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      powerPreference: 'high-performance',
+      preserveDrawingBuffer: true,
+    });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;

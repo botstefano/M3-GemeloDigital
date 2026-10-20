@@ -28,6 +28,7 @@ interface AcademicCardWrapperProps {
   extraHeaderActions?: React.ReactNode;
   className?: string;
   defaultExpandedExplainability?: boolean;
+  exportTargetId?: string; // Optional ID of specific inner graphic element to isolate
 }
 
 export const AcademicCardWrapper: React.FC<AcademicCardWrapperProps> = ({
@@ -43,16 +44,21 @@ export const AcademicCardWrapper: React.FC<AcademicCardWrapperProps> = ({
   extraHeaderActions,
   className = '',
   defaultExpandedExplainability = true,
+  exportTargetId,
 }) => {
   const [isExporting, setIsExporting] = useState(false);
   const [isExplainOpen, setIsExplainOpen] = useState(defaultExpandedExplainability);
 
+  // Target specifically the inner graphic/chart container so the export contains NO card headers, NO buttons, NO explanation text
+  const figureOnlyContainerId = `${id}-figure-only-target`;
+
   const handleDownload600Dpi = async () => {
     setIsExporting(true);
     try {
+      const targetElementId = exportTargetId || figureOnlyContainerId;
       await exportElementToHighDpiPng(
-        id,
-        `${figureNumber ? figureNumber.replace(/\s+/g, '_') : 'Grafica'}_${title.replace(/\s+/g, '_').substring(0, 30)}`,
+        targetElementId,
+        `${figureNumber ? figureNumber.replace(/\s+/g, '_') : 'Figura'}_${title.replace(/\s+/g, '_').substring(0, 30)}`,
         title
       );
     } finally {
@@ -110,16 +116,16 @@ export const AcademicCardWrapper: React.FC<AcademicCardWrapperProps> = ({
         <div className="flex items-center gap-2 self-start sm:self-auto ml-auto no-export">
           {extraHeaderActions}
 
-          {/* Figure: 600 DPI Download */}
+          {/* Figure: 600 DPI Download (ONLY the figure/graphic, no text, no headers) */}
           {type === 'figure' && (
             <button
               onClick={handleDownload600Dpi}
               disabled={isExporting}
               className="px-2.5 py-1.5 rounded-lg bg-[#00f2ff]/10 hover:bg-[#00f2ff]/20 text-[#00f2ff] border border-[#00f2ff]/40 text-[11px] font-mono font-bold flex items-center gap-1.5 transition-all shadow-[0_0_10px_rgba(0,242,255,0.15)] cursor-pointer"
-              title="Descargar figura en alta resolución 600 DPI (PNG de grado científico apto para IEEE/Elsevier/Springer)"
+              title="Descargar únicamente la figura/gráfica en alta resolución 600 DPI (sin encabezados ni texto explicativo)"
             >
               <ImageIcon className="w-3.5 h-3.5" />
-              <span>{isExporting ? 'Procesando 600 DPI...' : 'Descargar 600 DPI'}</span>
+              <span>{isExporting ? 'Procesando 600 DPI...' : 'Descargar Figura (600 DPI)'}</span>
             </button>
           )}
 
@@ -144,7 +150,7 @@ export const AcademicCardWrapper: React.FC<AcademicCardWrapperProps> = ({
               title="Descargar render de la tabla en alta resolución 600 DPI para inserción en papers"
             >
               <ImageIcon className="w-3.5 h-3.5" />
-              <span>{isExporting ? '600 DPI...' : 'Imagen 600 DPI'}</span>
+              <span>{isExporting ? '600 DPI...' : 'Tabla 600 DPI'}</span>
             </button>
           )}
 
@@ -160,11 +166,13 @@ export const AcademicCardWrapper: React.FC<AcademicCardWrapperProps> = ({
         </div>
       </div>
 
-      {/* Main Content (Figure, Chart or Table) */}
-      <div className="w-full overflow-x-auto">{children}</div>
+      {/* Main Content (Figure, Chart or Table) ONLY - Targeted for 600 DPI export (No headers, no explanation texts) */}
+      <div id={figureOnlyContainerId} className="w-full overflow-x-auto bg-[#0a0b0e] p-2.5 rounded-lg">
+        {children}
+      </div>
 
-      {/* In-Screen Interpretability & Physical Explainability Section */}
-      <div className="bg-[#0a0b0e] rounded-lg border border-[#1f2937] p-3 text-xs mt-1">
+      {/* In-Screen Interpretability & Physical Explainability Section (marked no-export) */}
+      <div className="bg-[#0a0b0e] rounded-lg border border-[#1f2937] p-3 text-xs mt-1 no-export">
         <div
           onClick={() => setIsExplainOpen(!isExplainOpen)}
           className="flex items-center justify-between cursor-pointer select-none pb-1"

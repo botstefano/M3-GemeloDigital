@@ -614,7 +614,7 @@ export const WhatIfStudio: React.FC<WhatIfStudioProps> = ({
                 </svg>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 text-center text-xs">
+              <div className="grid grid-cols-3 gap-2 text-center text-xs no-export">
                 <div className="bg-[#15181e] p-1.5 rounded border border-[#1f2937]">
                   <div className="text-[10px] uppercase font-bold text-[#6b7280]">Finos (&lt;25mm)</div>
                   <div className="font-mono font-bold text-white">{draftKuzRam.finesPercentUnder25mm}%</div>
