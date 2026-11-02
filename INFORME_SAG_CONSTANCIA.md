@@ -14,7 +14,7 @@ La tabla siguiente resume las estadísticas descriptivas de las seis variables o
 
 | Variable | N | Media | Desv. Est. | Error Est. | CV (%) | Mín. | Mediana | Máx. | IC 95 % (inf.) | IC 95 % (sup.) |
 |----------|---|-------|-----------|-----------|--------|------|---------|------|----------------|----------------|
-| F80 (mm) | 14 | 59.33 | 9.74 | 2.60 | 16.42 | 45.72 | 59.69 | 73.66 | 53.70 | 64.95 |
+| P80 (mm) | 14 | 59.33 | 9.74 | 2.60 | 16.42 | 45.72 | 59.69 | 73.66 | 53.70 | 64.95 |
 | SGI (min) | 14 | 68.21 | 29.54 | 7.89 | 43.30 | 30.00 | 67.50 | 122.00 | 51.16 | 85.27 |
 | Tonelaje (t/h) | 14 | 1809.79 | 279.06 | 74.58 | 15.42 | 1351 | 1883 | 2224 | 1648.69 | 1970.88 |
 | P80 producto (µm) | 14 | 1189.57 | 308.99 | 82.58 | 25.97 | 614 | 1188 | 1834 | 1011.20 | 1367.95 |
@@ -26,7 +26,7 @@ La tabla siguiente resume las estadísticas descriptivas de las seis variables o
 
 ### Observaciones
 
-- **F80 de alimentación:** oscila entre 45.72 mm y 73.66 mm (CV = 16.42 %), reflejando variabilidad natural de la fragmentación de alimentación al SAG. La mediana (59.69 mm) es prácticamente igual a la media, indicando distribución simétrica.
+- **P80 de alimentación:** oscila entre 45.72 mm y 73.66 mm (CV = 16.42 %), reflejando variabilidad natural de la fragmentación de alimentación al SAG. La mediana (59.69 mm) es prácticamente igual a la media, indicando distribución simétrica.
 - **SGI (SAG Grindability Index):** presenta la mayor variabilidad relativa (CV = 43.30 %), con valores desde 30 min (mineral supergene blando) hasta 122 min (hypogene duro). Esta variable es el principal diferenciador entre tipos de mena.
 - **Tonelaje procesado:** varía entre 1,351 y 2,224 t/h (CV = 15.42 %), inversamente correlacionado con la dureza del mineral.
 - **P80 del producto:** presenta alta dispersión (CV = 25.97 %), desde 614 µm hasta 1,834 µm, indicando variabilidad apreciable en la granulometría de descarga del SAG dentro de las mediciones disponibles.
@@ -38,7 +38,7 @@ La tabla siguiente resume las estadísticas descriptivas de las seis variables o
 
 ### 2.1 Tabla de Comparación por Survey
 
-| Survey | Línea | Tipo de Mena | F80 (mm) | SGI (min) | TPH | P80 (µm) | E_calc (kWh/t) | E_meas (kWh/t) | Diferencia (kWh/t) | Error (%) | FC |
+| Survey | Línea | Tipo de Mena | P80 (mm) | SGI (min) | TPH | P80 (µm) | E_calc (kWh/t) | E_meas (kWh/t) | Diferencia (kWh/t) | Error (%) | FC |
 |--------|-------|-------------|----------|-----------|------|----------|----------------|----------------|---------------------|-----------|----|
 | 1 | 1 | Hypogene | 66.04 | 76 | 1843 | 1834 | 7.5 | 7.7 | −0.2 | −2.6 | 1.03 |
 | 2 | 2 | Hypogene | 58.42 | 73 | 1931 | 1223 | 8.1 | 6.9 | +1.2 | +17.4 | 0.85 |
@@ -83,13 +83,13 @@ Los surveys con mayor discrepancia (12, 2 y 4) presentan factores de corrección
 
 ### 3.1 Análisis de Correlaciones
 
-Se calcularon las correlaciones de Pearson entre las variables operacionales y ambas estimaciones de energía específica:
+Se calcularon las correlaciones de Pearson entre las variables operacionales y ambas estimaciones de energía específica. Debido a que las dos líneas fueron medidas en las mismas siete fechas, estas correlaciones deben interpretarse como asociaciones descriptivas y exploratorias; la posible agrupación temporal puede afectar la independencia efectiva de las observaciones y la incertidumbre de los coeficientes.
 
 | Par de variables | r (Pearson) |
 |-----------------|-------------|
 | E_calc vs. E_meas | 0.9192 |
-| F80 vs. E_calc | 0.6075 |
-| F80 vs. E_meas | 0.6724 |
+| P80 vs. E_calc | 0.6075 |
+| P80 vs. E_meas | 0.6724 |
 | SGI vs. E_calc | 0.9623 |
 | SGI vs. E_meas | 0.9441 |
 | TPH vs. E_calc | −0.9132 |
@@ -99,27 +99,31 @@ Se calcularon las correlaciones de Pearson entre las variables operacionales y a
 
 - El **SGI** presenta la correlación más fuerte con la energía específica (r > 0.94 para ambas estimaciones). Esta correlación es coherente con la expectativa física de que a mayor dureza del mineral (mayor SGI), mayor energía requerida por el molino SAG. Sin embargo, correlación no implica causalidad directa sin un diseño experimental controlado; la asociación observada es consistente con la teoría pero no la demuestra de forma aislada.
 - El **tonelaje (TPH)** presenta correlación negativa fuerte con la energía específica (r < −0.91). Esta asociación es esperable (a mayor tonelaje, menor energía específica por tonelada), pero no permite establecer una relación causal sin controlar por tipo de mineral y condiciones operacionales.
-- El **F80** muestra correlación moderada positiva con la energía (r ≈ 0.61–0.67), lo que es consistente con el principio de que una alimentación más gruesa requiere mayor energía de molienda, aunque su efecto es menos dominante que el SGI en este dataset.
+- El **P80** muestra correlación moderada positiva con la energía (r ≈ 0.61–0.67), lo que es consistente con el principio de que una alimentación más gruesa requiere mayor energía de molienda, aunque su efecto es menos dominante que el SGI en este dataset.
 
 ### 3.2 Análisis por Tipo de Mena
 
-| Tipo de Mena | N | F80 medio (mm) | SGI medio (min) | TPH medio (t/h) | E_calc media (kWh/t) | E_meas media (kWh/t) | E_calc SD | E_meas SD |
+| Tipo de Mena | N | P80 medio (mm) | SGI medio (min) | TPH medio (t/h) | E_calc media (kWh/t) | E_meas media (kWh/t) | E_calc SD | E_meas SD |
 |-------------|---|----------------|-----------------|------------------|---------------------|---------------------|-----------|-----------|
 | Hypogene | 10 | 61.21 | 82.7 | 1698 | 8.60 | 8.82 | 1.29 | 1.80 |
 | Supergene | 4 | 54.61 | 32.0 | 2090 | 5.65 | 5.57 | 0.54 | 0.21 |
 
 El mineral clasificado como **hypogene** en la tabla presenta una energía específica media mayor (8.60–8.82 kWh/t) que el clasificado como supergene (5.57–5.65 kWh/t), con un diferencial de 3.25 kWh/t entre las mediciones de planta. La dispersión interna del hypogene es mayor (SD = 1.29–1.80) que la del supergene (SD = 0.21–0.54). Estas diferencias descriptivas corresponden a las categorías de mena observadas en la muestra y no permiten, por sí solas, atribuir causalidad a una propiedad mineralógica específica.
 
-**Prueba estadística de la diferencia entre tipos de mena:** Se aplicó una prueba t de Welch (varianzas desiguales) sobre las mediciones de planta (E_meas) entre hypogene (n = 10) y supergene (n = 4). El resultado fue t = 5.595 con gl ≈ 9.6 (aproximación de Welch-Satterthwaite), valor crítico t₀.₀₂₅,₉.₆ ≈ 2.23. Dado que |t| > t_crítico, **se rechaza la hipótesis nula de igualdad de medias** al nivel α = 0.05. La diferencia observada de 3.25 kWh/t es estadísticamente significativa. El tamaño del efecto d de Cohen = 2.53 (efecto muy grande), indicando que la diferencia es sustancialmente mayor que la variabilidad intra-grupo.
+**Prueba estadística de la diferencia entre tipos de mena:** Se aplicó una prueba t de Welch (varianzas desiguales) sobre las mediciones de planta (E_meas) entre hypogene (n = 10) y supergene (n = 4). El resultado fue t = 5.595 con gl ≈ 9.6 (aproximación de Welch-Satterthwaite), valor crítico t₀.₀₂₅,₉.₆ ≈ 2.23. Este resultado rechazaría la hipótesis nula de igualdad de medias al nivel α = 0.05 **si se asumiera que las 14 observaciones son independientes**.
+
+Sin embargo, los registros corresponden a dos líneas medidas en las mismas siete fechas, por lo que puede existir agrupación o dependencia por fecha. Con los datos disponibles no es posible estimar adecuadamente un efecto de fecha ni aplicar una prueba por bloques o un modelo de efectos mixtos; además, los tipos de mena no están distribuidos de forma equilibrada entre todas las fechas. Por ello, el resultado de Welch debe presentarse como **exploratorio y condicionado al supuesto de independencia**, no como evidencia concluyente. La diferencia descriptiva entre las medias de planta es de 3.25 kWh/t.
+
+El tamaño del efecto se calculó mediante el Cohen d convencional con desviación estándar combinada: sₚ = √[((n_h−1)s_h² + (n_s−1)s_s²)/(n_h+n_s−2)] y d = (media_h − media_s)/sₚ. Con n_h = 10 y n_s = 4, d ≈ 2.07. Aplicando la corrección de Hedges para muestras pequeñas, g ≈ 1.94. Estos tamaños de efecto también deben interpretarse como exploratorios y bajo el supuesto de independencia; no se presentan como estimaciones generalizables fuera de esta muestra.
 
 ### 3.3 Análisis por Línea de Molienda
 
-| Línea | N | F80 medio (mm) | SGI medio (min) | TPH medio (t/h) | E_calc media (kWh/t) | E_meas media (kWh/t) |
+| Línea | N | P80 medio (mm) | SGI medio (min) | TPH medio (t/h) | E_calc media (kWh/t) | E_meas media (kWh/t) |
 |-------|---|----------------|-----------------|------------------|---------------------|---------------------|
 | Línea 1 | 7 | 59.51 | 66.6 | 1819 | 7.53 | 7.83 |
 | Línea 2 | 7 | 59.15 | 69.9 | 1801 | 7.99 | 7.96 |
 
-Las dos líneas de molienda presentan medias globales similares, pero la línea 2 muestra mayor variabilidad en la energía medida (SD = 2.47) comparada con la línea 1 (SD = 1.95). Los surveys 12 y 2 (ambos línea 2, hypogene) presentan las mayores discrepancias modelo-planta. No es posible atribuir las diferencias observadas entre líneas a una causa específica (diseño, desgaste de revestimientos, configuración operacional u otros factores) con los datos disponibles, ya que el dataset no contiene información sobre el estado de los equipos ni las condiciones operacionales de cada línea en cada medición.
+Las dos líneas de molienda presentan medias globales similares, pero la línea 2 muestra mayor variabilidad en la energía medida (SD = 2.47) comparada con la línea 1 (SD = 1.95). Los surveys 12 y 2 (ambos línea 2, hypogene) presentan las mayores discrepancias modelo-planta. Estas comparaciones son descriptivas: no se aplicó una prueba específica entre líneas y no es posible atribuir las diferencias observadas a una causa determinada con los datos disponibles. Además, ambas líneas fueron medidas en las mismas siete fechas, por lo que las observaciones pueden estar agrupadas por fecha.
 
 ### 3.4 Distribución de Errores
 
@@ -140,7 +144,7 @@ El 57.1 % de los surveys presentan un error absoluto inferior al 10 %, mientras 
 
 | Variable | Unidad | N | Media ± DE | CV (%) | Mín. | Máx. |
 |----------|--------|---|-------------|--------|------|------|
-| F80 alimentación | mm | 14 | 59.33 ± 9.74 | 16.4 | 45.72 | 73.66 |
+| P80 alimentación | mm | 14 | 59.33 ± 9.74 | 16.4 | 45.72 | 73.66 |
 | SGI | min | 14 | 68.21 ± 29.54 | 43.3 | 30.00 | 122.00 |
 | Tonelaje SAG | t/h | 14 | 1809.79 ± 279.06 | 15.4 | 1351 | 2224 |
 | P80 producto | µm | 14 | 1189.57 ± 308.99 | 26.0 | 614 | 1834 |
@@ -161,14 +165,15 @@ El 57.1 % de los surveys presentan un error absoluto inferior al 10 %, mientras 
 | Pearson r | 0.919 | Correlación fuerte (asociación, no validación predictiva) |
 | R² | 0.845 | Proporción de varianza compartida |
 | t de Student (sesgo) | −0.587 | Sesgo no significativo (gl=13, t_crít=2.160) |
-| Welch t (hyp vs. sup) | 5.595 | Diferencia significativa (gl≈9.6, t_crít≈2.23) |
-| d de Cohen (hyp vs. sup) | 2.53 | Efecto muy grande |
+| Welch t (hyp vs. sup) | 5.595 | Resultado exploratorio, condicionado a independencia (gl≈9.6, t_crít≈2.23) |
+| d de Cohen convencional (hyp vs. sup) | ≈2.07 | Calculado con desviación estándar combinada; exploratorio |
+| Hedges g corregido (hyp vs. sup) | ≈1.94 | Corrección para muestras pequeñas; exploratorio |
 
 ### Tabla C. Correlaciones de Pearson entre variables operacionales y energía específica SAG
 
 | Variable | r vs. E_calc | r vs. E_meas |
 |----------|-------------|-------------|
-| F80 (mm) | 0.608 | 0.672 |
+| P80 de alimentación (mm) | 0.608 | 0.672 |
 | SGI (min) | 0.962 | 0.944 |
 | TPH (t/h) | −0.913 | −0.978 |
 | E_meas | 0.919 | — |
@@ -194,7 +199,7 @@ El presente análisis se basa exclusivamente en mediciones de la planta Constanc
 ### 5.2 Diferencias de Equipamiento y Diseño de Planta
 
 - Constancia opera con **dos líneas de molienda SAG** paralelas con características de diseño, configuración de liners, volumen de carga de bolas y potencia instalada específicas. El modelo M-3 utiliza ecuaciones simplificadas de Morrell/Bond con una sola configuración de molino SAG genérica.
-- Las diferencias en diámetro del molino, longitud, fracción de llenado de bolas, tamaño de bolas, velocidad crítica y configuración del discharge (grate vs. overflow) afectan directamente la relación entre F80, P80 y consumo energético, haciendo que los valores absolutos no sean comparables entre operaciones.
+- Las diferencias en diámetro del molino, longitud, fracción de llenado de bolas, tamaño de bolas, velocidad crítica y configuración del discharge (grate vs. overflow) afectan directamente la relación entre P80 de alimentación, P80 de producto y consumo energético, haciendo que los valores absolutos no sean comparables entre operaciones.
 
 ### 5.3 Diferencias de Escala y Configuración de Circuito
 
@@ -213,8 +218,8 @@ El presente análisis se basa exclusivamente en mediciones de la planta Constanc
 
 ### 5.6 Incomparabilidad Directa con el Modelo M-3
 
-- El modelo M-3 utiliza la ecuación **E_SAG = 8.2 × (P80/240)^0.38 × (RockA/7.2)^0.25** con P80 en milímetros y factor de roca A de Kuz-Ram. La tabla suministrada para este análisis identifica la variable de alimentación como `feed_size_p80_mm`; en este informe se mantiene la denominación **F80 de alimentación** utilizada en la solicitud y se reserva **P80 de producto** para `sag_mill_product_p80_microns`. La planta Constancia utiliza un modelo de energía específica basado en SGI y un factor de corrección específico de la planta. Estas formulaciones tienen variables de entrada distintas. La equivalencia exacta entre la etiqueta F80 y la nomenclatura del PDF original debe comprobarse directamente contra ese documento, que no forma parte del archivo de datos suministrado.
-- Los P80 de producto en Constancia (614–1,834 µm) corresponden a la granulometría de descarga del SAG, mientras que el F80 de alimentación (45.72–73.66 mm) describe el tamaño de la mena que ingresa al molino. El modelo M-3, por su parte, acopla el P80 de fragmentación de voladura (142–240 mm) con el consumo SAG. Las escalas granulométricas y el papel de cada variable en el modelo son distintos y no directamente equivalentes.
+- El modelo M-3 utiliza la ecuación **E_SAG = 8.2 × (P80/240)^0.38 × (RockA/7.2)^0.25** con P80 en milímetros y factor de roca A de Kuz-Ram. El encabezado de la Tabla 13-2 del informe original denomina la variable de alimentación **Feed Size P80 [in]**; por ello, en este informe se utiliza **P80 de alimentación**. Se reserva **P80 de producto** para la granulometría de descarga del SAG (`sag_mill_product_p80_microns`). La planta Constancia utiliza un modelo de energía específica basado en SGI y un factor de corrección específico de la planta. Estas formulaciones tienen variables de entrada distintas.
+- Los P80 de producto en Constancia (614–1,834 µm) corresponden a la granulometría de descarga del SAG, mientras que el P80 de alimentación (45.72–73.66 mm) describe el tamaño de la mena que ingresa al molino. El modelo M-3, por su parte, acopla el P80 de fragmentación de voladura (142–240 mm) con el consumo SAG. Las escalas granulométricas y el papel de cada variable en el modelo son distintos y no directamente equivalentes.
 - **Por lo tanto, este análisis no debe interpretarse como una validación, calibración ni ajuste del motor M-3**, sino como un estudio académico independiente sobre datos reales de molienda SAG que aporta contexto empírico sobre el comportamiento de esta unidad operacional.
 
 ### 5.7 Limitaciones de Transferibilidad
@@ -226,13 +231,13 @@ El presente análisis se basa exclusivamente en mediciones de la planta Constanc
 
 ## 6. Conclusiones
 
-1. Las estadísticas descriptivas muestran que el dataset de Constancia abarca un rango operativo amplio (F80: 45.72–73.66 mm; SGI: 30–122 min; E_meas: 5.4–11.4 kWh/t), representativo de dos tipos de mena (hypogene y supergene) con comportamientos energéticos diferenciados. Los intervalos de confianza al 95 % se calcularon con la distribución t de Student (gl = 13), apropiada para muestras pequeñas.
+1. Las estadísticas descriptivas muestran que el dataset de Constancia abarca un rango operativo amplio (P80 de alimentación: 45.72–73.66 mm; SGI: 30–122 min; E_meas: 5.4–11.4 kWh/t), representativo de dos tipos de mena (hypogene y supergene) con comportamientos energéticos diferenciados. Los intervalos de confianza al 95 % se calcularon con la distribución t de Student (gl = 13), apropiada para muestras pequeñas.
 
 2. El modelo de planta presenta una correlación fuerte con las mediciones reales (r = 0.919, R² = 0.845), con un RMSE de 0.845 kWh/t y un MAPE de 8.88 %. Esta correlación indica asociación lineal entre ambas estimaciones, no constituye una validación predictiva del modelo. El sesgo medio (−0.136 kWh/t) no resultó estadísticamente distinto de cero (prueba t de Student: t = −0.587, gl = 13, t_crít = 2.160), por lo que no se puede afirmar que exista un sesgo sistemático con la evidencia disponible.
 
-3. El SGI presenta la correlación más fuerte con la energía específica (r = 0.96 con E_calc y r = 0.94 con E_meas), seguido por el tonelaje (r = −0.91 a −0.98) y el F80 (r = 0.61 a 0.67). Estas correlaciones son consistentes con la teoría de molienda, pero correlación no implica causalidad sin un diseño experimental controlado.
+3. El SGI presenta la correlación más fuerte con la energía específica (r = 0.96 con E_calc y r = 0.94 con E_meas), seguido por el tonelaje (r = −0.91 a −0.98) y el P80 (r = 0.61 a 0.67). Estas correlaciones son consistentes con la teoría de molienda, pero correlación no implica causalidad sin un diseño experimental controlado.
 
-4. El mineral hypogene consume en promedio 3.25 kWh/t más que el supergene (8.82 vs. 5.57 kWh/t en mediciones de planta). La prueba t de Welch (t = 5.595, gl ≈ 9.6, p < 0.05) confirmó que esta diferencia es estadísticamente significativa, con un tamaño del efecto d de Cohen = 2.53 (muy grande).
+4. El mineral clasificado como hypogene presenta una media de energía de planta 3.25 kWh/t mayor que el supergene (8.82 vs. 5.57 kWh/t). La prueba t de Welch produjo t = 5.595 y gl ≈ 9.6; este resultado es exploratorio y está condicionado al supuesto de independencia, porque las dos líneas fueron medidas en las mismas siete fechas. El Cohen d convencional, calculado con desviación estándar combinada, es aproximadamente 2.07, y Hedges g aproximadamente 1.94; ambos deben interpretarse con la misma cautela.
 
 5. El 57.1 % de los surveys presentan errores inferiores al 10 %, mientras que el 21.4 % alcanza o supera el 15 % de error (surveys 2, 4 y 12). No es posible atribuir las discrepancias a causas específicas sin información adicional sobre las condiciones operacionales de cada medición.
 
