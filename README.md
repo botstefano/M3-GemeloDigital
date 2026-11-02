@@ -1,142 +1,43 @@
-# M-3 Mining Digital Twin: Drill-Blast-Load-Haul (Mine-to-Mill)
+# M-3 — prototipo de simulación y resultados de investigación
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D18.0-blue.svg)](https://nodejs.org/)
-[![Bun](https://img.shields.io/badge/Bun-%3E%3D1.0-orange.svg)](https://bun.sh/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
+M-3 es un proyecto académico que estudia, mediante simulación, el ciclo mina-molino y distintas políticas de despacho. En el manuscrito actualizado se describe con precisión como un **modelo de simulación**, no como un gemelo digital conectado bidireccionalmente y en tiempo real con una operación minera.
 
-Plataforma de Simulación Digital Twin 3D y Optimización Multi-Objetivo (DRL & ABM) del ciclo **Drill-Blast-Load-Haul** para operaciones mineras a cielo abierto. Implementa modelado físico acoplado de fragmentación de roca (Kuz-Ram), colas estocásticas de carguío y acarreo ($M/G/1$), despacho dinámico y molienda SAG (Morrell / Bond).
+## Estado de esta rama
 
-Este repositorio contiene el código fuente completo, el motor de eventos discretos estocástico (ABM), los scripts de reproducibilidad experimental y los entornos Gymnasium para entrenamiento con aprendizaje por refuerzo profundo (DRL).
+La rama `main` contiene una versión anterior del prototipo web. Sus controles, resultados y documentación de ejecución no deben confundirse con el motor v3 utilizado para producir los resultados descritos en el manuscrito actualizado. La aplicación desplegada no se declara aquí como una implementación comprobada del motor v3.
 
----
+El directorio [`research-results-v3/`](research-results-v3/README.md) incorpora un suplemento de resultados **estadísticos agregados** del paquete de investigación v3. Este suplemento permite consultar resúmenes, pero **no es un paquete íntegro de reproducción** y no permite regenerar los experimentos desde cero.
 
-## Requisitos
+## Suplemento de resultados
 
-- **Node.js** $\ge 18.0$ o **Bun** $\ge 1.0$ (ver especificaciones en `package.json`).
-- **Variables de entorno**: Copiar el archivo de plantilla `.env.example` a `.env`:
-  ```bash
-  cp .env.example .env
-  ```
-  *(El simulador de eventos discretos y las pruebas estadísticas se ejecutan de manera local e independiente sin requerir claves de API obligatorias).*
+Incluye:
 
----
+- `experiment1_policy_summary.csv`: resumen descriptivo de diferencias relativas de las políticas frente a la asignación fija en el experimento 1.
+- `experiment2_contrasts_summary.csv`: resumen de contrastes del experimento 2 por orientación de los frentes.
 
-## Ejecución
+Los tamaños de muestra descritos en el paquete fuente son 57 600 registros para el experimento 1 y 72 000 para el experimento 2. Los archivos CSV de este suplemento no contienen observaciones individuales.
 
-Para instalar dependencias y levantar el entorno de simulación local:
+## Límites de reproducibilidad
+
+El suplemento no incluye el motor ejecutable v3, scripts de simulación, datos fila por fila, pesos de agentes ni documentación que permita reconstruir por completo los experimentos. Las fechas consignadas en archivos de preinscripción del paquete de origen tampoco quedan verificadas históricamente por una carga posterior a GitHub.
+
+La presencia de estos resúmenes no demuestra que la aplicación de esta rama o el despliegue web reproduzcan el motor v3. Cualquier publicación del manuscrito debe describir con exactitud qué artefactos están disponibles y cuáles no.
+
+## Ejecutar el prototipo web de esta rama
+
+Este comando inicia el prototipo contenido en esta rama; **no** reproduce los experimentos v3:
 
 ```bash
-# Con Bun:
-bun install
-bun run dev
-
-# Alternativamente con npm:
 npm install
 npm run dev
 ```
 
-La aplicación web y el estudio de investigación estarán disponibles en:  
-`http://localhost:3000`
+Consulta `package.json` para conocer los scripts y versiones de dependencias del prototipo.
 
----
+## Uso responsable
 
-## Reproducir resultados del artículo
-
-Existen dos vías para reproducir de forma determinista y auditable las $N = 300$ réplicas Monte Carlo y las tablas/figuras del artículo:
-
-### 1. Vía Consola / CLI (Replicación en un comando)
-Ejecute el script automatizado de simulación estocástica por lotes:
-
-```bash
-# Con Bun:
-bun run reproduce
-
-# O con npm / npx:
-npm run reproduce
-# (O pasando un número personalizado de réplicas, ej: npx tsx scripts/reproduce_benchmarks.ts 300)
-```
-
-**¿Qué hace este script?**
-- Ejecuta `MineAbmSimulator` (`scripts/reproduce_benchmarks.ts`) sobre 300 turnos operacionales de 8 horas para 4 políticas de despacho (`Fixed FIFO`, `Min-Queue`, `Expected-Wait`, `DRL-PPO`), sumando un total de 1,200 turnos simulados.
-- Resuelve el acoplamiento físico en cada guardia: heterogeneidad geológica $\to$ distribución de fragmentación Kuz-Ram ($P_{80}$, digestibilidad de pila) $\to$ tiempos de carguío y acarreo $\to$ mezcla de mineral y consumo energético específico del molino SAG.
-- Calcula las medias, desviaciones estándar, intervalos de confianza al 95% y pruebas de significancia estadística ($t$ de Welch y tamaño del efecto $d$ de Cohen).
-- **Archivos generados automáticamente**:
-  - `output/simulation_replications_300.csv`: Matriz con las 1,200 observaciones y todas las métricas de rendimiento (TPH, colas, energía SAG en kWh/t, costo unitario $/t, emisión de $\text{CO}_2$).
-  - `output/benchmark_table.tex`: Tabla LaTeX en formato Booktabs lista para inclusión directa en el manuscrito del paper.
-
-### 2. Vía Interfaz Gráfica (Web Studio)
-1. Navegue en el navegador a `http://localhost:3000`.
-2. Diríjase a la pestaña **«Simulación ABM & Monte Carlo»** (*Scientific Research Studio*).
-3. Seleccione el número de réplicas ($N=300$), el factor de carga ($q = 0.78\text{ kg/m}^3$) y la semilla aleatoria del generador pseudoaleatorio congruencial lineal (LCG).
-4. Haga clic en **«Ejecutar Monte Carlo (Batch ABM)»**.
-5. Descargue los datasets en formato CSV mediante el botón **«Exportar CSV Completo»** o copie el código de la tabla LaTeX y las figuras vectoriales.
-
----
-
-## Dónde se guardan las tablas y figuras
-
-| Artefacto | Ubicación | Descripción |
-|---|---|---|
-| **Dataset Completo (300 Réplicas)** | `output/simulation_replications_300.csv` | Registros turno a turno con varianza estocástica natural (1,200 observaciones). |
-| **Tabla Comparativa (LaTeX)** | `output/benchmark_table.tex` | Tabla formal de benchmarks con pruebas $t$ de Welch frente al baseline FIFO. |
-| **Motor Python Streamlit (CRISP-DM)** | `streamlit_app/app.py` | Aplicación interactiva con las 6 fases CRISP-DM, modelos ML y explicabilidad. |
-| **Documento Word Completo para IA** | `M3_Codigo_Principal_Para_Articulo.docx` | Archivo con código fuente, modelo matemático y prompt estructurado para redacción de papers. |
-| **Scripts Python de Entrenamiento DRL** | `src/utils/scientificPythonSuite.ts` | Entorno Gymnasium (`mine_abm_gym.py`) y script de entrenamiento PPO (`train_ppo.py`). |
-| **Dossier y Reportes Académicos** | Descargables desde la UI en PDF / CSV | Reporte metodológico consolidado del gemelo digital y simulación estocástica. |
-
----
-
-## Motor en Python con Streamlit (Metodología CRISP-DM)
-
-El proyecto incluye un motor analítico integral en **Python** montado sobre **Streamlit** (`streamlit_app/app.py`), diseñado bajo el estándar **CRISP-DM** (*Cross-Industry Standard Process for Data Mining*):
-
-### Fases Implementadas:
-1. **EDA (Exploratory Data Analysis):** Histogramas, correlación de Pearson y diagramas de caja (boxplots) con desglose por política de acarreo.
-2. **Entrenamientos Multi-Modelo:** Ajuste comparativo de múltiples algoritmos (Ridge, Lasso, Árboles de Decisión, Random Forest, Gradient Boosting y Redes Neuronales MLP).
-3. **Selección del Mejor Modelo:** Ranking exhaustivo por $R^2$, $RMSE$, $MAE$ y $MAPE$ identificando automáticamente el modelo campeón con análisis de residuales.
-4. **Validación Cruzada ($K$-Fold):** Validación cruzada rigurosa con $k=5$ y $k=10$ pliegues evaluando estabilidad y prevención de overfitting.
-5. **Pruebas Estadísticas Rigurosas:** Test de normalidad de Shapiro-Wilk, prueba de homocedasticidad de Levene, ANOVA / Kruskal-Wallis, test $t$ de Welch y tamaño del efecto $d$ de Cohen.
-6. **Reportes con Interpretabilidad y Explicabilidad:** Cada gráfico, tabla y métrica cuenta con paneles de **interpretabilidad numérica** (qué significan los valores) y **explicabilidad físico-minera** (por qué ocurren físicamente según las leyes de Kuz-Ram, colas $M/G/1$ y molienda SAG).
-
-### Ejecución de Streamlit:
-```bash
-# 1. Instalar dependencias de Python:
-pip install -r streamlit_app/requirements.txt
-
-# 2. Ejecutar la aplicación:
-streamlit run streamlit_app/app.py
-# (O mediante el script: ./run_streamlit.sh)
-```
-La aplicación Streamlit estará disponible en `http://localhost:8501`.
-
----
-
-## Estructura del Proyecto
-
-```text
-├── scripts/
-│   └── reproduce_benchmarks.ts       # Script de ejecución CLI para reproducir las 300 réplicas
-├── src/
-│   ├── components/
-│   │   ├── scientific/              # ScientificResearchStudio (UI de Monte Carlo, LaTeX y Python)
-│   │   ├── digital-twin/            # Gemelo digital 3D interactivo con Three.js
-│   │   ├── drl-training/            # Panel de control de agentes de despacho
-│   │   └── dashboard/               # Indicadores operacionales en tiempo real
-│   ├── utils/
-│   │   ├── scientificAbmEngine.ts    # Motor de eventos discretos, colas M/G/1 y Monte Carlo
-│   │   ├── kuzRam.ts                # Modelo de fragmentación Kuz-Ram y acoplamiento SAG
-│   │   └── scientificPythonSuite.ts # Códigos fuente Gymnasium y Stable-Baselines3
-│   └── data/
-│       └── caseStudyPresets.ts      # Parámetros calibrados del yacimiento tipo pórfido andino
-├── output/                          # Salidas de replicación (CSV y tablas LaTeX)
-├── package.json                     # Scripts y dependencias del proyecto
-├── LICENSE                          # Licencia de código abierto MIT (Criterio B5.1)
-└── README.md                        # Documentación e instrucciones de réplica (Criterio B5.2)
-```
-
----
+Este repositorio es académico y de investigación por simulación. Los materiales no deben emplearse para diseño u operación de voladuras, dimensionamiento de cargas, control de equipos ni decisiones de ingeniería en campo. Los resultados de simulación no son mediciones de una mina real ni sustituyen la validación y supervisión profesional independiente.
 
 ## Licencia
 
-Este proyecto está distribuido bajo los términos de la **Licencia MIT**. Consulte el archivo [LICENSE](LICENSE) para más detalles.
+Consulta [`LICENSE`](LICENSE) para las condiciones aplicables al código existente.

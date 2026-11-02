@@ -7,3 +7,10 @@ coverage/
 .env*
 !.env.example
 .env
+# Entornos y cachés locales de Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
