@@ -2,6 +2,8 @@
 
 ## Datos de referencia: Operación Constancia (Hudbay Minerals, Perú)
 
+> **Fuente de datos:** Los datos analizados provienen de la Tabla 13-2 del informe técnico NI 43-101 Technical Report: Constancia Mine, Cuzco, Peru, de Hudbay Minerals Inc. (2021).
+
 > **Advertencia metodológica:** Este análisis se realiza de forma independiente sobre mediciones de la planta Constancia. No constituye una calibración, validación ni ajuste del motor M-3. El proyecto M-3 y su modelo de acoplamiento Mine-to-Mill no son modificados. El presente informe tiene fines académicos de estudio comparativo de datos reales de molienda SAG.
 
 ---
@@ -12,20 +14,22 @@ La tabla siguiente resume las estadísticas descriptivas de las seis variables o
 
 | Variable | N | Media | Desv. Est. | Error Est. | CV (%) | Mín. | Mediana | Máx. | IC 95 % (inf.) | IC 95 % (sup.) |
 |----------|---|-------|-----------|-----------|--------|------|---------|------|----------------|----------------|
-| F80 (mm) | 14 | 59.33 | 9.74 | 2.60 | 16.42 | 45.72 | 59.69 | 73.66 | 54.22 | 64.43 |
-| SGI (min) | 14 | 68.21 | 29.54 | 7.89 | 43.30 | 30.00 | 67.50 | 122.00 | 52.74 | 83.69 |
-| Tonelaje (t/h) | 14 | 1809.79 | 279.06 | 74.58 | 15.42 | 1351 | 1883 | 2224 | 1663.61 | 1955.96 |
-| P80 producto (µm) | 14 | 1189.57 | 308.99 | 82.58 | 25.97 | 614 | 1188 | 1834 | 1027.71 | 1351.43 |
-| E. específica calc. (kWh/t) | 14 | 7.76 | 1.77 | 0.47 | 22.82 | 5.00 | 7.50 | 10.50 | 6.83 | 8.68 |
-| E. específica med. (kWh/t) | 14 | 7.89 | 2.14 | 0.57 | 27.11 | 5.40 | 7.60 | 11.40 | 6.77 | 9.01 |
-| Factor de corrección | 14 | 1.02 | 0.10 | 0.03 | 10.34 | 0.85 | 1.03 | 1.19 | 0.96 | 1.07 |
+| F80 (mm) | 14 | 59.33 | 9.74 | 2.60 | 16.42 | 45.72 | 59.69 | 73.66 | 53.70 | 64.95 |
+| SGI (min) | 14 | 68.21 | 29.54 | 7.89 | 43.30 | 30.00 | 67.50 | 122.00 | 51.16 | 85.27 |
+| Tonelaje (t/h) | 14 | 1809.79 | 279.06 | 74.58 | 15.42 | 1351 | 1883 | 2224 | 1648.69 | 1970.88 |
+| P80 producto (µm) | 14 | 1189.57 | 308.99 | 82.58 | 25.97 | 614 | 1188 | 1834 | 1011.20 | 1367.95 |
+| E. específica calc. (kWh/t) | 14 | 7.76 | 1.77 | 0.47 | 22.82 | 5.00 | 7.50 | 10.50 | 6.74 | 8.78 |
+| E. específica med. (kWh/t) | 14 | 7.89 | 2.14 | 0.57 | 27.11 | 5.40 | 7.60 | 11.40 | 6.66 | 9.13 |
+| Factor de corrección | 14 | 1.02 | 0.10 | 0.03 | 10.34 | 0.85 | 1.03 | 1.19 | 0.96 | 1.08 |
+
+> **Método estadístico:** Los intervalos de confianza al 95 % se calcularon utilizando la distribución t de Student con n = 14 grados de libertad (gl = n − 1 = 13), valor crítico t₀.₀₂₅,₁₃ = 2.160. Este método es apropiado para muestras pequeñas (n < 30) cuando se asume que la población subyacente sigue una distribución aproximadamente normal. El intervalo se calcula como: IC 95 % = media ± t₀.₀₂₅,₁₃ × (s/√n), donde s es la desviación estándar muestral.
 
 ### Observaciones
 
 - **F80 de alimentación:** oscila entre 45.72 mm y 73.66 mm (CV = 16.42 %), reflejando variabilidad natural de la fragmentación de alimentación al SAG. La mediana (59.69 mm) es prácticamente igual a la media, indicando distribución simétrica.
 - **SGI (SAG Grindability Index):** presenta la mayor variabilidad relativa (CV = 43.30 %), con valores desde 30 min (mineral supergene blando) hasta 122 min (hypogene duro). Esta variable es el principal diferenciador entre tipos de mena.
 - **Tonelaje procesado:** varía entre 1,351 y 2,224 t/h (CV = 15.42 %), inversamente correlacionado con la dureza del mineral.
-- **P80 del producto:** presenta alta dispersión (CV = 25.97 %), desde 614 µm hasta 1,834 µm, indicando que la granulometría de descarga del SAG varía significativamente según las condiciones operacionales.
+- **P80 del producto:** presenta alta dispersión (CV = 25.97 %), desde 614 µm hasta 1,834 µm, indicando variabilidad apreciable en la granulometría de descarga del SAG dentro de las mediciones disponibles.
 - **Energía específica:** tanto la calculada por el modelo como la medida en planta presentan coeficientes de variación elevados (22.82 % y 27.11 % respectivamente), lo que es consistente con la amplia gama de durezas de mineral y condiciones de operación abarcadas por el dataset.
 
 ---
@@ -67,9 +71,11 @@ La tabla siguiente resume las estadísticas descriptivas de las seis variables o
 
 ### 2.3 Interpretación
 
-El modelo de planta presenta una **correlación fuerte** con las mediciones reales (r = 0.9192, R² = 0.845), indicando que el modelo captura adecuadamente la dirección y magnitud general del consumo energético. Sin embargo, el RMSE de 0.845 kWh/t y el MAPE de 8.88 % revelan un nivel de discrepancia no despreciable a nivel de survey individual. El sesgo medio ligeramente negativo (−0.136 kWh/t) indica que el modelo tiende a **subestimar** marginalmente la energía medida, pero este sesgo es pequeño en magnitud relativa (1.7 % de la media de E_meas) y no es significativo dado el tamaño de muestra.
+El modelo de planta presenta una **correlación fuerte** con las mediciones reales (r = 0.9192, R² = 0.845). Esta correlación indica que ambas estimaciones covarían en la misma dirección, pero no constituye por sí sola una validación predictiva del modelo: una correlación alta mide asociación lineal, no precisión de predicción. El RMSE de 0.845 kWh/t y el MAPE de 8.88 % revelan un nivel de discrepancia no despreciable a nivel de survey individual.
 
-Los surveys con mayor discrepancia (12, 2 y 4) presentan factores de corrección en los extremos del rango (0.85, 0.87 y 1.19), sugiriendo que el modelo requiere ajustes significativos en condiciones de mineral particulares o líneas de molienda específicas.
+El sesgo medio ligeramente negativo (−0.136 kWh/t) indica que el modelo tiende a **subestimar** marginalmente la energía medida. Para evaluar si este sesgo es estadísticamente distinto de cero, se aplicó una prueba t de Student para una muestra (H₀: media de diferencias = 0) con n = 14 y gl = 13. El resultado fue t = −0.587, menor que el valor crítico t₀.₀₂₅,₁₃ = 2.160, por lo que **no se rechaza la hipótesis nula**: el sesgo observado no es estadísticamente diferente de cero al nivel de significancia α = 0.05. En consecuencia, no se puede afirmar que exista un sesgo sistemático entre el modelo y las mediciones de planta con la evidencia disponible.
+
+Los surveys con mayor discrepancia (12, 2 y 4) presentan factores de corrección en los extremos del rango (0.85, 0.87 y 1.19). No es posible atribuir estas discrepancias a una causa específica (diseño de línea, desgaste de revestimientos, condiciones del mineral u otros factores) sin información adicional no contenida en el dataset.
 
 ---
 
@@ -91,9 +97,9 @@ Se calcularon las correlaciones de Pearson entre las variables operacionales y a
 
 **Hallazgos:**
 
-- El **SGI** es el predictor más fuerte de la energía específica (r > 0.94 para ambas estimaciones), lo que es físicamente coherente: a mayor dureza del mineral (mayor SGI), mayor energía requerida por el molino SAG.
-- El **tonelaje (TPH)** presenta correlación negativa muy fuerte con la energía específica (r < −0.91), confirmando que a mayor tonelaje procesado (mineral más blando), menor energía específica por tonelada.
-- El **F80** muestra correlación moderada positiva con la energía (r ≈ 0.61–0.67), lo que es consistente con el principio de que una alimentación más gruesa requiere mayor energía de molienda, aunque su efecto es menos dominante que el SGI.
+- El **SGI** presenta la correlación más fuerte con la energía específica (r > 0.94 para ambas estimaciones). Esta correlación es coherente con la expectativa física de que a mayor dureza del mineral (mayor SGI), mayor energía requerida por el molino SAG. Sin embargo, correlación no implica causalidad directa sin un diseño experimental controlado; la asociación observada es consistente con la teoría pero no la demuestra de forma aislada.
+- El **tonelaje (TPH)** presenta correlación negativa fuerte con la energía específica (r < −0.91). Esta asociación es esperable (a mayor tonelaje, menor energía específica por tonelada), pero no permite establecer una relación causal sin controlar por tipo de mineral y condiciones operacionales.
+- El **F80** muestra correlación moderada positiva con la energía (r ≈ 0.61–0.67), lo que es consistente con el principio de que una alimentación más gruesa requiere mayor energía de molienda, aunque su efecto es menos dominante que el SGI en este dataset.
 
 ### 3.2 Análisis por Tipo de Mena
 
@@ -102,7 +108,9 @@ Se calcularon las correlaciones de Pearson entre las variables operacionales y a
 | Hypogene | 10 | 61.21 | 82.7 | 1698 | 8.60 | 8.82 | 1.29 | 1.80 |
 | Supergene | 4 | 54.61 | 32.0 | 2090 | 5.65 | 5.57 | 0.54 | 0.21 |
 
-El mineral **hypogene** (más profundo, más duro) consume significativamente más energía específica (8.60–8.82 kWh/t) que el supergene (5.57–5.65 kWh/t), con un diferencial de aproximadamente 3 kWh/t. La dispersión interna del hypogene es notablemente mayor (SD = 1.29–1.80) que la del supergene (SD = 0.21–0.54), reflejando la heterogeneidad mineralógica del hypogene a lo largo del tiempo (surveys de 2017 a 2020).
+El mineral clasificado como **hypogene** en la tabla presenta una energía específica media mayor (8.60–8.82 kWh/t) que el clasificado como supergene (5.57–5.65 kWh/t), con un diferencial de 3.25 kWh/t entre las mediciones de planta. La dispersión interna del hypogene es mayor (SD = 1.29–1.80) que la del supergene (SD = 0.21–0.54). Estas diferencias descriptivas corresponden a las categorías de mena observadas en la muestra y no permiten, por sí solas, atribuir causalidad a una propiedad mineralógica específica.
+
+**Prueba estadística de la diferencia entre tipos de mena:** Se aplicó una prueba t de Welch (varianzas desiguales) sobre las mediciones de planta (E_meas) entre hypogene (n = 10) y supergene (n = 4). El resultado fue t = 5.595 con gl ≈ 9.6 (aproximación de Welch-Satterthwaite), valor crítico t₀.₀₂₅,₉.₆ ≈ 2.23. Dado que |t| > t_crítico, **se rechaza la hipótesis nula de igualdad de medias** al nivel α = 0.05. La diferencia observada de 3.25 kWh/t es estadísticamente significativa. El tamaño del efecto d de Cohen = 2.53 (efecto muy grande), indicando que la diferencia es sustancialmente mayor que la variabilidad intra-grupo.
 
 ### 3.3 Análisis por Línea de Molienda
 
@@ -111,18 +119,18 @@ El mineral **hypogene** (más profundo, más duro) consume significativamente m�
 | Línea 1 | 7 | 59.51 | 66.6 | 1819 | 7.53 | 7.83 |
 | Línea 2 | 7 | 59.15 | 69.9 | 1801 | 7.99 | 7.96 |
 
-Las dos líneas de molienda presentan medias globales similares, pero la línea 2 muestra mayor variabilidad en la energía medida (SD = 2.47) comparada con la línea 1 (SD = 1.95). Los surveys 12 y 2 (ambos línea 2, hypogene) presentan las mayores discrepancias modelo-planta, sugiriendo que la línea 2 puede tener características de diseño o desgaste de liners que el modelo no captura completamente.
+Las dos líneas de molienda presentan medias globales similares, pero la línea 2 muestra mayor variabilidad en la energía medida (SD = 2.47) comparada con la línea 1 (SD = 1.95). Los surveys 12 y 2 (ambos línea 2, hypogene) presentan las mayores discrepancias modelo-planta. No es posible atribuir las diferencias observadas entre líneas a una causa específica (diseño, desgaste de revestimientos, configuración operacional u otros factores) con los datos disponibles, ya que el dataset no contiene información sobre el estado de los equipos ni las condiciones operacionales de cada línea en cada medición.
 
 ### 3.4 Distribución de Errores
 
 | Rango de Error (%) | Nº de Surveys | Porcentaje |
 |---------------------|---------------|------------|
-| |E| < 5 % | 5 | 35.7 % |
-| 5 % ≤ |E| < 10 % | 4 | 28.6 % |
+| |E| < 5 % | 3 | 21.4 % |
+| 5 % ≤ |E| < 10 % | 5 | 35.7 % |
 | 10 % ≤ |E| < 15 % | 3 | 21.4 % |
-| |E| ≥ 15 % | 2 | 14.3 % |
+| |E| ≥ 15 % | 3 | 21.4 % |
 
-El 64.3 % de los surveys presentan un error inferior al 10 %, mientras que el 35.7 % restante excede este umbral. Los dos surveys con error superior al 15 % (surveys 2 y 12, ambos hypogene línea 2) representan casos atípicos que podrían requerir investigación adicional sobre condiciones operacionales específicas.
+El 57.1 % de los surveys presentan un error absoluto inferior al 10 %, mientras que el 42.9 % restante presenta un error absoluto de 10 % o más. Los tres surveys con error absoluto superior o igual al 15 % (surveys 2, 4 y 12) presentan discrepancias notables entre el modelo y la planta.
 
 ---
 
@@ -140,7 +148,7 @@ El 64.3 % de los surveys presentan un error inferior al 10 %, mientras que el 35
 | E. específica (planta) | kWh/t | 14 | 7.89 ± 2.14 | 27.1 | 5.40 | 11.40 |
 | Factor de corrección | — | 14 | 1.02 ± 0.10 | 10.3 | 0.85 | 1.19 |
 
-*Nota.* DE = desviación estándar; CV = coeficiente de variación. E. específica (modelo) = energía específica calculada por el modelo de planta SAG; E. específica (planta) = energía específica medida en campo. Datos de la planta Constancia (Hudbay Minerals), 14 mediciones entre 2017 y 2020.
+*Nota.* DE = desviación estándar; CV = coeficiente de variación. E. específica (modelo) = energía específica calculada por el modelo de planta SAG; E. específica (planta) = energía específica medida en campo. Datos de la Tabla 13-2 del informe técnico NI 43-101 Constancia Mine (Hudbay Minerals Inc., 2021), 14 mediciones entre 2017 y 2020.
 
 ### Tabla B. Métricas de desempeño del modelo frente a mediciones de planta
 
@@ -150,8 +158,11 @@ El 64.3 % de los surveys presentan un error inferior al 10 %, mientras que el 35
 | MAE (kWh/t) | 0.707 | Error absoluto medio |
 | RMSE (kWh/t) | 0.845 | Error cuadrático medio |
 | MAPE (%) | 8.88 | Error porcentual medio |
-| Pearson r | 0.919 | Correlación fuerte |
-| R² | 0.845 | Buena capacidad explicativa |
+| Pearson r | 0.919 | Correlación fuerte (asociación, no validación predictiva) |
+| R² | 0.845 | Proporción de varianza compartida |
+| t de Student (sesgo) | −0.587 | Sesgo no significativo (gl=13, t_crít=2.160) |
+| Welch t (hyp vs. sup) | 5.595 | Diferencia significativa (gl≈9.6, t_crít≈2.23) |
+| d de Cohen (hyp vs. sup) | 2.53 | Efecto muy grande |
 
 ### Tabla C. Correlaciones de Pearson entre variables operacionales y energía específica SAG
 
@@ -192,19 +203,19 @@ El presente análisis se basa exclusivamente en mediciones de la planta Constanc
 
 ### 5.4 Diferencias de Condiciones Operacionales y Temporales
 
-- Las mediciones de Constancia abarcan un periodo de tres años (junio 2017 a septiembre 2020), durante los cuales el molino experimentó cambios de liners, desgaste progresivo, ajustes de fracción de llenado de bolas y modificaciones en la configuración del circuito. El modelo M-3 no captura la degradación temporal de los componentes mecánicos del molino.
-- Los factores de corrección de Constancia varían entre 0.85 y 1.19 (rango del 40 %), indicando que las condiciones de operación no son estacionarias y que el modelo de planta requiere correcciones significativas según el estado del molino.
+- Las mediciones de Constancia abarcan un periodo de tres años (junio de 2017 a septiembre de 2020). El dataset suministrado no incluye información suficiente para determinar si durante ese periodo ocurrieron cambios de revestimientos, desgaste progresivo, ajustes de carga de bolas u otras modificaciones del circuito; por tanto, no se atribuyen las diferencias temporales a esas causas.
+- Los factores de corrección de Constancia varían entre 0.85 y 1.19, un rango descriptivo de 0.34 unidades. Esta variación muestra discrepancias entre el modelo y las mediciones en los surveys, pero no identifica por sí sola su causa.
 
 ### 5.5 Tamaño y Representatividad de la Muestra
 
-- El dataset contiene solo **14 mediciones** (surveys), lo que limita la potencia estadística de cualquier inferencia. Intervalos de confianza al 95 % son anchos (e.g., E_meas: [6.77, 9.01] kWh/t) y no permiten conclusiones robustas sobre la significancia de diferencias menores.
+- El dataset contiene solo **14 mediciones** (surveys), lo que limita la potencia estadística de cualquier inferencia. Los intervalos de confianza al 95 %, calculados con la distribución t de Student (gl = 13, t_crít = 2.160), son anchos (e.g., E_meas: [6.66, 9.13] kWh/t) y no permiten conclusiones robustas sobre diferencias menores a la variabilidad observada.
 - La distribución desigual entre tipos de mena (10 hypogene vs. 4 supergene) introduce un sesgo hacia las características del mineral hypogene en las medias globales.
 
 ### 5.6 Incomparabilidad Directa con el Modelo M-3
 
-- El modelo M-3 utiliza la ecuación **E_SAG = 8.2 × (P80/240)^0.38 × (RockA/7.2)^0.25** con P80 en milímetros y factor de roca A de Kuz-Ram. La planta Constancia utiliza un modelo de energía específica basado en SGI (SAG Grindability Index), F80 en milímetros y un factor de corrección empírico específico de la planta. Estas son formulaciones fundamentalmente diferentes con variables de entrada distintas.
-- Los P80 de producto en Constancia (614–1,834 µm) son significativamente más finos que el P80 de alimentación (45.72–73.66 mm), mientras que el modelo M-3 acopla el P80 de fragmentación de voladura (142–240 mm) con el consumo SAG. Las escalas granulométricas son distintas y no directamente equivalentes.
-- **Por lo tanto, este análisis no debe interpretse como una validación, calibración ni ajuste del motor M-3**, sino como un estudio académico independiente sobre datos reales de molienda SAG que aporta contexto empírico sobre el comportamiento de esta unidad operacional.
+- El modelo M-3 utiliza la ecuación **E_SAG = 8.2 × (P80/240)^0.38 × (RockA/7.2)^0.25** con P80 en milímetros y factor de roca A de Kuz-Ram. La tabla suministrada para este análisis identifica la variable de alimentación como `feed_size_p80_mm`; en este informe se mantiene la denominación **F80 de alimentación** utilizada en la solicitud y se reserva **P80 de producto** para `sag_mill_product_p80_microns`. La planta Constancia utiliza un modelo de energía específica basado en SGI y un factor de corrección específico de la planta. Estas formulaciones tienen variables de entrada distintas. La equivalencia exacta entre la etiqueta F80 y la nomenclatura del PDF original debe comprobarse directamente contra ese documento, que no forma parte del archivo de datos suministrado.
+- Los P80 de producto en Constancia (614–1,834 µm) corresponden a la granulometría de descarga del SAG, mientras que el F80 de alimentación (45.72–73.66 mm) describe el tamaño de la mena que ingresa al molino. El modelo M-3, por su parte, acopla el P80 de fragmentación de voladura (142–240 mm) con el consumo SAG. Las escalas granulométricas y el papel de cada variable en el modelo son distintos y no directamente equivalentes.
+- **Por lo tanto, este análisis no debe interpretarse como una validación, calibración ni ajuste del motor M-3**, sino como un estudio académico independiente sobre datos reales de molienda SAG que aporta contexto empírico sobre el comportamiento de esta unidad operacional.
 
 ### 5.7 Limitaciones de Transferibilidad
 
@@ -215,15 +226,15 @@ El presente análisis se basa exclusivamente en mediciones de la planta Constanc
 
 ## 6. Conclusiones
 
-1. Las estadísticas descriptivas muestran que el dataset de Constancia abarca un rango operativo amplio (F80: 45.72–73.66 mm; SGI: 30–122 min; E_meas: 5.4–11.4 kWh/t), representativo de dos tipos de mena (hypogene y supergene) con comportamientos energéticos claramente diferenciados.
+1. Las estadísticas descriptivas muestran que el dataset de Constancia abarca un rango operativo amplio (F80: 45.72–73.66 mm; SGI: 30–122 min; E_meas: 5.4–11.4 kWh/t), representativo de dos tipos de mena (hypogene y supergene) con comportamientos energéticos diferenciados. Los intervalos de confianza al 95 % se calcularon con la distribución t de Student (gl = 13), apropiada para muestras pequeñas.
 
-2. El modelo de planta calcula la energía específica con una correlación fuerte respecto a las mediciones reales (r = 0.919, R² = 0.845), con un RMSE de 0.845 kWh/t y un MAPE de 8.88 %. El sesgo medio es marginal (−0.136 kWh/t), indicando una leve subestimación del modelo.
+2. El modelo de planta presenta una correlación fuerte con las mediciones reales (r = 0.919, R² = 0.845), con un RMSE de 0.845 kWh/t y un MAPE de 8.88 %. Esta correlación indica asociación lineal entre ambas estimaciones, no constituye una validación predictiva del modelo. El sesgo medio (−0.136 kWh/t) no resultó estadísticamente distinto de cero (prueba t de Student: t = −0.587, gl = 13, t_crít = 2.160), por lo que no se puede afirmar que exista un sesgo sistemático con la evidencia disponible.
 
-3. El SGI es el predictor más fuerte de la energía específica (r = 0.96 con E_calc y r = 0.94 con E_meas), seguido por el tonelaje (r = −0.91 a −0.98) y el F80 (r = 0.61 a 0.67). Esto confirma que la dureza del mineral es el factor dominante en el consumo energético SAG, por encima del tamaño de alimentación.
+3. El SGI presenta la correlación más fuerte con la energía específica (r = 0.96 con E_calc y r = 0.94 con E_meas), seguido por el tonelaje (r = −0.91 a −0.98) y el F80 (r = 0.61 a 0.67). Estas correlaciones son consistentes con la teoría de molienda, pero correlación no implica causalidad sin un diseño experimental controlado.
 
-4. El mineral hypogene consume en promedio 3.05 kWh/t más que el supergene (8.82 vs. 5.57 kWh/t en mediciones de planta), con mayor dispersión interna (SD = 1.80 vs. 0.21), reflejando la heterogeneidad mineralógica del hypogene a lo largo del periodo de medición.
+4. El mineral hypogene consume en promedio 3.25 kWh/t más que el supergene (8.82 vs. 5.57 kWh/t en mediciones de planta). La prueba t de Welch (t = 5.595, gl ≈ 9.6, p < 0.05) confirmó que esta diferencia es estadísticamente significativa, con un tamaño del efecto d de Cohen = 2.53 (muy grande).
 
-5. El 64.3 % de los surveys presentan errores inferiores al 10 %, mientras que el 14.3 % excede el 15 % de error, correspondiendo a casos atípicos en la línea 2 con mineral hypogene y factores de corrección extremos.
+5. El 57.1 % de los surveys presentan errores inferiores al 10 %, mientras que el 21.4 % alcanza o supera el 15 % de error (surveys 2, 4 y 12). No es posible atribuir las discrepancias a causas específicas sin información adicional sobre las condiciones operacionales de cada medición.
 
 6. El análisis es estrictamente independiente del motor M-3 y no constituye una calibración ni validación del mismo, debido a las diferencias fundamentales en yacimiento, equipamiento, escala, formulación del modelo de energía y escalas granulométricas entre la operación Constancia y el contexto modelado por M-3.
 
@@ -231,10 +242,14 @@ El presente análisis se basa exclusivamente en mediciones de la planta Constanc
 
 ## 7. Referencias
 
-Hudbay Minerals Inc. (2017–2020). *SAG mill performance surveys, Constancia operation* [Datos no publicados]. Tabla 13.2.
+Hudbay Minerals Inc. (2021). *NI 43-101 Technical Report: Constancia Mine, Cuzco, Peru*. Tabla 13-2: SAG mill performance surveys. Hudbay Minerals Inc.
 
 Morrell, S. (2004). An alternative energy–size relationship to that proposed by Bond for the design and optimisation of grinding circuits. *International Journal of Mineral Processing*, *74*(3–4), 133–141.
 
 Bond, F. C. (1952). The third theory of comminution. *Mining Engineering*, *4*(5), 484–494.
 
 Amelunxen, P., Meadows, D., & Lam, M. (2013). The appropriateness of using the SAG grindability index to design SAG mills. *Proceedings of the 45th Annual Canadian Mineral Processors Conference* (pp. 297–310). Canadian Institute of Mining.
+
+Welch, B. L. (1947). The generalization of "Student's" problem when several different population variances are involved. *Biometrika*, *34*(1–2), 28–35.
+
+Cohen, J. (1988). *Statistical power analysis for the behavioral sciences* (2nd ed.). Lawrence Erlbaum Associates.
